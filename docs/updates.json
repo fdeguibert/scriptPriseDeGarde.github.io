@@ -1,0 +1,16 @@
+{
+  "addons": {
+    "{eafccfdf-b917-4895-9c59-5a096c9ae9af}": {
+      "updates": [
+        {
+          "version": "0.2",
+          "update_link": "https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.2-an+fx.xpi"
+        },
+        {
+          "version": "0.3",
+          "update_link": "https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.3-an+fx.xpi"
+        }
+      ]
+    }
+  }
+}

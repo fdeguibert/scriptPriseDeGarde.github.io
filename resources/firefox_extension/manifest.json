@@ -1,0 +1,29 @@
+{
+
+  "manifest_version": 2,
+  "name": "InspyreHelper",
+  "version": "0.2",
+
+  "description": "Ajoute des options sur Inspyre, comme la génération de la prise de garde du matin",
+
+  "icons": {
+    "48": "icons/casque-F1-free-48.png",
+    "96": "icons/casque-F1-free-96.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.portail.sdis78.fr/jcms/p_*/cs-*"],
+      "js": ["generateOpenGuard.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "inspyre_helper@f2guibert.com",
+      "update_url": "https://fdeguibert.github.io/scriptPriseDeGarde.github.io/updates.json"
+    }
+  }
+
+}
