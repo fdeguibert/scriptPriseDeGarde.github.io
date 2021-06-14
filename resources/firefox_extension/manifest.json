@@ -2,9 +2,9 @@
 
   "manifest_version": 2,
   "name": "InspyreHelper",
-  "version": "0.2",
+  "version": "0.3",
 
-  "description": "Ajoute des options sur Inspyre, comme la génération de la prise de garde du matin",
+  "description": "Ajoute des options sur Inspyre, comme la génération de la prise de garde du matin v0.3",
 
   "icons": {
     "48": "icons/casque-F1-free-48.png",

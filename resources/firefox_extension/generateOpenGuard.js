@@ -1,5 +1,5 @@
 var fetchAndFillDatasPriseDeGarde = function(){
-  console.log("using v0.1")
+  console.log("using v0.3")
   var template = 'generation en cours...';
   document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1)').textContent = template;
 

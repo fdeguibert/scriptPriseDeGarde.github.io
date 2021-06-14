@@ -1,14 +1,16 @@
 {
   "addons": {
-    "{eafccfdf-b917-4895-9c59-5a096c9ae9af}": {
+    "inspyre_helper@f2guibert.com": {
       "updates": [
         {
           "version": "0.2",
-          "update_link": "https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.2-an+fx.xpi"
+          "update_link": "https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.2-an+fx.xpi",
+          "update_hash": "sha256:539efc44b1a19c776e38d90bd8931b103f8b92edf849b2205671c284cb87a6d4"
         },
         {
           "version": "0.3",
-          "update_link": "https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.3-an+fx.xpi"
+          "update_link": "https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.3-an+fx.xpi",
+          "update_hash": "sha256:8ff4c987ae775e6b3776fad174600c00b6403aebb0a920691591313e4f5fc973"
         }
       ]
     }
