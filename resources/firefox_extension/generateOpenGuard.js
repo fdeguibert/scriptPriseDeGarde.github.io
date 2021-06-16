@@ -1,4 +1,4 @@
-var fetchAndFillDatasPriseDeGarde = function(){
+function fetchAndFillDatasPriseDeGarde(textArea){
   console.log("using v0.3")
   var template = 'generation en cours...';
   document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1)').textContent = template;
@@ -70,22 +70,19 @@ var fetchAndFillDatasPriseDeGarde = function(){
 
   template = "Sous-officier de garde : \nSous-officier de jour : \nGarde remise : \nStationnaire : \nEquipiers : " + lineEq + "\nChefs d'équipe : " + lineTL + "\nChefs d'agrès 1 équipe : " + lineCA1 + "\nChefs d'agrès 2 équipes : " + lineCA2;
 
-  var textArea = document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1):nth-child(1)');
-  if (textArea !=null && textArea.offsetParent != null) {
-    document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1)').textContent = template;
-  }
+  textArea.textContent = template;
 }
 
-function loadScript(wasAlreadyDisplayed){
+function loadOpenGuardScript(wasAlreadyDisplayed){
 
   var modalTitle = document.querySelector('#modalLabel');
   var textArea = document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1):nth-child(1)');
   var isDisplayed = textArea !=null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une prise de garde")
   if (isDisplayed && !wasAlreadyDisplayed) {
-    fetchAndFillDatasPriseDeGarde();
+    fetchAndFillDatasPriseDeGarde(textArea);
   }
   setTimeout(function() {
-    loadScript(isDisplayed);
+    loadOpenGuardScript(isDisplayed);
   }, 300);
 
 }
@@ -96,5 +93,5 @@ var isRunningHandPage =  modalLinkToTest != null && modalLinkToTest.toString().i
 
 
 if (isRunningHandPage){
-  loadScript(false);
+  loadOpenGuardScript(false);
 }

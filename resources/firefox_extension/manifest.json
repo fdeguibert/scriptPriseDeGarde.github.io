@@ -14,7 +14,7 @@
   "content_scripts": [
     {
       "matches": ["*://*.portail.sdis78.fr/jcms/p_*/c*-*"],
-      "js": ["generateOpenGuard.js"],
+      "js": ["generateOpenGuard.js", "generateSignEndGuard.js"],
       "run_at": "document_idle"
     }
   ],
