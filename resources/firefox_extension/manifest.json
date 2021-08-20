@@ -19,6 +19,17 @@
     }
   ],
 
+  "permissions": [
+    "webRequest",
+    "*://*.portail.sdis78.fr/front/privateLogin.jsp",
+    "storage"
+  ],
+
+  "background": {
+    "scripts": ["storeCredentials.js"]
+  },
+
+
   "browser_specific_settings": {
     "gecko": {
       "id": "inspyre_helper@f2guibert.com",

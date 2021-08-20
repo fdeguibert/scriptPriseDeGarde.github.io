@@ -1,43 +1,47 @@
+
+const VERSION = 0.3
+
+
 function fetchAndFillDatasPriseDeGarde(textArea){
-  console.log("using v0.3")
-  var template = 'generation en cours...';
+  console.log(`using v${VERSION}`);
+  let template = 'generation en cours...';
   document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1)').textContent = template;
 
-  var urlListeGarde = 'https://portail.sdis78.fr/' + document.querySelector('#cs-header-tabs > ul:nth-child(1) > li:nth-child(7) > a:nth-child(1)').getAttribute('href');
+  const urlListeGarde = 'https://portail.sdis78.fr/' + document.querySelector('#cs-header-tabs > ul:nth-child(1) > li:nth-child(7) > a:nth-child(1)').getAttribute('href');
 
 
-  var xmlHttp = new XMLHttpRequest();
+  const xmlHttp = new XMLHttpRequest();
   xmlHttp.open( "GET", urlListeGarde, false );
   xmlHttp.send( null );
-  var htmlResult = xmlHttp.responseText;
+  const htmlResult = xmlHttp.responseText;
 
 
-  var el = document.createElement( 'html' );
+  const el = document.createElement('html');
   el.innerHTML = htmlResult;
-  var tableGardeRows =  el.querySelector('#cs-content').getElementsByTagName('div')[0].getElementsByTagName('tr');
+  const tableGardeRows = el.querySelector('#cs-content').getElementsByTagName('div')[0].getElementsByTagName('tr');
 
-  var personnel = [];
+  const personnel = [];
   for (i = 0; i < tableGardeRows.length; i++) {
     personnel[i-1] = tableGardeRows[i].getElementsByTagName('td');
   }
   personnel.valueOf();
 
-  var CA2Array = [];
-  var CA1Array = [];
-  var TLArray = [];
-  var eqArray = [];
+  const CA2Array = [];
+  const CA1Array = [];
+  const TLArray = [];
+  const eqArray = [];
 
-  var rankCA2 = ['adj', 'adc'];
-  var rankCA1 = ['sgt','sch'];
-  var rankTL = ['cpl', 'cch'];
-  var rankEq = ['sap', 'sp1', 'sp2'];
+  const rankCA2 = ['adj', 'adc'];
+  const rankCA1 = ['sgt', 'sch'];
+  const rankTL = ['cpl', 'cch'];
+  const rankEq = ['sap', 'sp1', 'sp2'];
 
   for (i = 0;i<personnel.length;i++){
 
-    var rank = personnel[i][0].textContent;
-    var name = personnel[i][1].textContent.split('\n')[0];
-    var duration = personnel[i][7].textContent.charAt(0);
-    var displayName = rank + ' ' + name;
+    const rank = personnel[i][0].textContent;
+    const name = personnel[i][1].textContent.split('\n')[0];
+    const duration = personnel[i][7].textContent.charAt(0);
+    let displayName = rank + ' ' + name;
 
     if (duration == 'G'){
        displayName += ' (24)';
@@ -63,10 +67,10 @@ function fetchAndFillDatasPriseDeGarde(textArea){
     }
   }
 
-  var lineCA2 = CA2Array.join(' / ');
-  var lineCA1 = CA1Array.join(' / ');
-  var lineTL = TLArray.join(' / ');
-  var lineEq = eqArray.join(' / ');
+  const lineCA2 = CA2Array.join(' / ');
+  const lineCA1 = CA1Array.join(' / ');
+  const lineTL = TLArray.join(' / ');
+  const lineEq = eqArray.join(' / ');
 
   template = "Sous-officier de garde : \nSous-officier de jour : \nGarde remise : \nStationnaire : \nEquipiers : " + lineEq + "\nChefs d'équipe : " + lineTL + "\nChefs d'agrès 1 équipe : " + lineCA1 + "\nChefs d'agrès 2 équipes : " + lineCA2;
 
@@ -75,9 +79,9 @@ function fetchAndFillDatasPriseDeGarde(textArea){
 
 function loadOpenGuardScript(wasAlreadyDisplayed){
 
-  var modalTitle = document.querySelector('#modalLabel');
-  var textArea = document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1):nth-child(1)');
-  var isDisplayed = textArea !=null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une prise de garde")
+  const modalTitle = document.querySelector('#modalLabel');
+  const textArea = document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1):nth-child(1)');
+  const isDisplayed = textArea != null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une prise de garde");
   if (isDisplayed && !wasAlreadyDisplayed) {
     fetchAndFillDatasPriseDeGarde(textArea);
   }
@@ -88,8 +92,8 @@ function loadOpenGuardScript(wasAlreadyDisplayed){
 }
 
 //Actual script
-var modalLinkToTest = document.querySelector('div.col-md-3:nth-child(2) > a:nth-child(1)');
-var isRunningHandPage =  modalLinkToTest != null && modalLinkToTest.toString().includes('modal-saisie-prise-de-garde') ;
+const modalLinkToTest = document.querySelector('div.col-md-3:nth-child(2) > a:nth-child(1)');
+const isRunningHandPage = modalLinkToTest != null && modalLinkToTest.toString().includes('modal-saisie-prise-de-garde');
 
 
 if (isRunningHandPage){

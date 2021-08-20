@@ -1,7 +1,7 @@
 // Actual script
 const EndGuardModalLinkToTest = document.querySelector('div.col-md-3:nth-child(3) > a:nth-child(1)');
 
-console.log('lets go')
+console.log('lets go for signing guard')
 //check if modal is opened
 if (EndGuardModalLinkToTest != null && EndGuardModalLinkToTest.toString().includes('modal-saisie-signature')){
     loadEndGuardScript(false);
