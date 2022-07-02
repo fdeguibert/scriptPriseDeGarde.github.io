@@ -26,6 +26,7 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
     dayBefore.setDate(dayBefore.getDate()-1)
     if (isDisplayed && !wasAlreadyDisplayed) {
         document.querySelector('div.form-group:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)').value = 'Fin de garde du ' + dayBefore.toLocaleDateString('fr');
+        textArea.style.height = '170px';
        fetchAndFillDatasSignEndGuard(textArea);
     }
     setTimeout(function () {
@@ -52,7 +53,13 @@ function fetchAndFillDatasSignEndGuard(textArea) {
     const totalInterventions = calculateNewTotal(latestSignatureText, '.*Cumul.*interventions.*: ([0-9]+).*', dailyInterventions);
     const totalInfos = calculateNewTotal(latestSignatureText, '.*Cumul.*infos.*: ([0-9]+).*', dailyInfos);
 
-    let template = "Consignes passées au Chef de Garde montant. \nInterventions : " + dailyInterventions + "\nInfos : " + dailyInfos + "\nCumul interventions : " + totalInterventions + "\nCumul infos : " + totalInfos;
+    let template = "Consignes passées au Chef de Garde montant.\n" +
+        "Interventions : " + dailyInterventions + "\n" +
+        "Infos : " + dailyInfos + "\n" +
+        "Cumul interventions : " + totalInterventions + "\n" +
+        "Cumul infos : " + totalInfos +"\n" +
+        "Personnel : " + "\n" +
+        "Moyens : ";
 
     console.log(template);
     textArea.textContent = template;
@@ -93,7 +100,7 @@ function calculateNewTotal(latestSignatureText,regexp, dailyEvents) {
     latestSignatureText = 'Consignes passées au Chef de Garde montant.\n' +
         'Interventions: 6\n' +
         'Infos: 1\n' +
-        'Cumul annuel interventions : FAILURE\n' +
+        'Cumul annuel interventions : 788\n' +
         'Cumul annuel infos: 72';
 
     const match = latestSignatureText.match(regexp);
