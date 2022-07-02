@@ -7,11 +7,25 @@ if (EndGuardModalLinkToTest != null && EndGuardModalLinkToTest.toString().includ
     loadEndGuardScript(false);
 }
 
+function currentDateFormatted(){
+    const date = new Date();
+
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+
+// This arrangement can be altered based on how we want the date's format to appear.
+    let currentDate = `${day}/${month}/${year}`;
+    return currentDate; // "17-6-2022"
+}
 function loadEndGuardScript(wasAlreadyDisplayed) {
     var modalTitle = document.querySelector('#modalLabel');
     var textArea = document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1):nth-child(1)');
     var isDisplayed = textArea != null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une signature")
+    const dayBefore = new Date();
+    dayBefore.setDate(dayBefore.getDate()-1)
     if (isDisplayed && !wasAlreadyDisplayed) {
+        document.querySelector('div.form-group:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)').value = 'Fin de garde du ' + dayBefore.toLocaleDateString('fr');
        fetchAndFillDatasSignEndGuard(textArea);
     }
     setTimeout(function () {
@@ -35,8 +49,8 @@ function fetchAndFillDatasSignEndGuard(textArea) {
     const latestSignatureText = getLatestSignature();
 
 
-    const totalInterventions = calculateNewTotalInters(latestSignatureText, dailyInterventions);
-    const totalInfos = calculateNewTotalInfos(latestSignatureText, dailyInfos);
+    const totalInterventions = calculateNewTotal(latestSignatureText, '.*Cumul.*interventions.*: ([0-9]+).*', dailyInterventions);
+    const totalInfos = calculateNewTotal(latestSignatureText, '.*Cumul.*infos.*: ([0-9]+).*', dailyInfos);
 
     let template = "Consignes passées au Chef de Garde montant. \nInterventions : " + dailyInterventions + "\nInfos : " + dailyInfos + "\nCumul interventions : " + totalInterventions + "\nCumul infos : " + totalInfos;
 
@@ -75,22 +89,17 @@ function getLatestSignature() {
     return elPreviousDayRunningHandContent.getElementsByClassName('signature')[0].getElementsByTagName('p')[0].textContent;
 }
 
-function calculateNewTotalInters(latestSignatureText, dailyInters) {
-    const regexp = '.*Cumul.*interventions.*: ([0-9]+).*'
-    const match = latestSignatureText.match(regexp);
-    if (match === null) {
-        return 'FAILURE';
-    } else {
-        return dailyInters + parseInt(match[1]);
-    }
-}
+function calculateNewTotal(latestSignatureText,regexp, dailyEvents) {
+    latestSignatureText = 'Consignes passées au Chef de Garde montant.\n' +
+        'Interventions: 6\n' +
+        'Infos: 1\n' +
+        'Cumul annuel interventions : FAILURE\n' +
+        'Cumul annuel infos: 72';
 
-function calculateNewTotalInfos(latestSignatureText, dailyInfos) {
-    const regexp = '.*Cumul.*infos.*: ([0-9]+).*'
     const match = latestSignatureText.match(regexp);
     if (match === null) {
-        return 'FAILURE';
+        return 'ECHEC, renseignez les données à la main';
     } else {
-        return dailyInfos + parseInt(match[1]);
+        return dailyEvents + parseInt(match[1]);
     }
 }
