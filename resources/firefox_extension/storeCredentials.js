@@ -1,3 +1,12 @@
+
+
+function openPage() {
+    alert('coucou')
+    console.log("test")
+}
+
+browser.browserAction.onClicked.addListener(openPage);
+
 // TODO autoriser le refus de cette extension (mais ça demandera a se log pour accéder à Agendis)
 function storeToLocalStorage(userLogin, userPassword){
     browser.storage.local.set({userLogin:userLogin, userPassword:userPassword})

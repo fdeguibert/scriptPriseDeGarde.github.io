@@ -1,33 +1,31 @@
+//pour la récup de l'histo, de la veille etc... il faut retrouver le AjaxCtxt-0-1656927656526 (ou autre chiffre) qui est l'id du body
+//a priori ça suffit pour le doMci.jsp en le passant en header pour récup le contenu du tableau que je peux ensuite parser
+//link to get data html from a date: "https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=04/07/2022"
+
 // Actual script
 const EndGuardModalLinkToTest = document.querySelector('div.col-md-3:nth-child(3) > a:nth-child(1)');
 
+// console.log(document.getElementsByClassName('chevron-left'))
 console.log('lets go for signing guard')
 //check if modal is opened
-if (EndGuardModalLinkToTest != null && EndGuardModalLinkToTest.toString().includes('modal-saisie-signature')){
+if (EndGuardModalLinkToTest != null && EndGuardModalLinkToTest.toString().includes('modal-saisie-signature')) {
     loadEndGuardScript(false);
 }
 
-function currentDateFormatted(){
-    const date = new Date();
+function getCtxIdFrompreviousDay() {
 
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-
-// This arrangement can be altered based on how we want the date's format to appear.
-    let currentDate = `${day}/${month}/${year}`;
-    return currentDate; // "17-6-2022"
 }
+
 function loadEndGuardScript(wasAlreadyDisplayed) {
     var modalTitle = document.querySelector('#modalLabel');
     var textArea = document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1):nth-child(1)');
     var isDisplayed = textArea != null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une signature")
     const dayBefore = new Date();
-    dayBefore.setDate(dayBefore.getDate()-1)
+    dayBefore.setDate(dayBefore.getDate() - 1)
     if (isDisplayed && !wasAlreadyDisplayed) {
         document.querySelector('div.form-group:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)').value = 'Fin de garde du ' + dayBefore.toLocaleDateString('fr');
         textArea.style.height = '170px';
-       fetchAndFillDatasSignEndGuard(textArea);
+        fetchAndFillDatasSignEndGuard(textArea);
     }
     setTimeout(function () {
         loadEndGuardScript(isDisplayed);
@@ -57,7 +55,7 @@ function fetchAndFillDatasSignEndGuard(textArea) {
         "Interventions : " + dailyInterventions + "\n" +
         "Infos : " + dailyInfos + "\n" +
         "Cumul interventions : " + totalInterventions + "\n" +
-        "Cumul infos : " + totalInfos +"\n" +
+        "Cumul infos : " + totalInfos + "\n" +
         "Personnel : " + "\n" +
         "Moyens : ";
 
@@ -96,7 +94,7 @@ function getLatestSignature() {
     return elPreviousDayRunningHandContent.getElementsByClassName('signature')[0].getElementsByTagName('p')[0].textContent;
 }
 
-function calculateNewTotal(latestSignatureText,regexp, dailyEvents) {
+function calculateNewTotal(latestSignatureText, regexp, dailyEvents) {
     latestSignatureText = 'Consignes passées au Chef de Garde montant.\n' +
         'Interventions: 6\n' +
         'Infos: 1\n' +
