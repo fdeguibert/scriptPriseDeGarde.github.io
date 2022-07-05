@@ -98,8 +98,8 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
 
 function buildNewSignText(latestValidSign, eventsFromLatestValidSign) {
     return "Consignes passées au Chef de Garde montant.\n" +
-        "Interventions : " + eventsFromLatestValidSign.dailyInterventions + "\n" +
-        "Infos : " + eventsFromLatestValidSign.dailyInfos + "\n" +
+        "Interventions : " + eventsFromLatestValidSign.totalInters + "\n" +
+        "Infos : " + eventsFromLatestValidSign.totalInfos + "\n" +
         "Cumul interventions : " + (eventsFromLatestValidSign.totalInters + latestValidSign.latestCountInters) + "\n" +
         "Cumul infos : " + (eventsFromLatestValidSign.totalInfos + latestValidSign.latestCountInfos) + "\n" +
         "Personnel : " + "\n" +
@@ -149,13 +149,9 @@ function countEventsFromDate(fromDate, textToUpdate) {
         dayBeforeEvents = dailyEvents;
         dateProcessed.setDate(dateProcessed.getDate() + 1);
     }
-    console.log(`aujourd'hui, inters: ${dailyInterventions}`)
-    console.log(`aujourd'hui, infos: ${dailyInfos}`)
-    console.log(`* total inters comptabilisées: ${totalInters}`)
-    console.log(`* total infos comptabilisées: ${totalInfos}`)
+    console.log(`* nouvelles inters depuis la date: ${totalInters}`)
+    console.log(`*  nouvelles infos depuis la date: ${totalInfos}`)
     return {
-        dailyInterventions,
-        dailyInfos,
         totalInters,
         totalInfos
     }
