@@ -25,20 +25,6 @@
     "storage"
   ],
 
-  "background": {
-    "scripts": ["runFullCrawling.js"]
-  },
-  "page_action": {
-    "show_matches":["*://*.portail.sdis78.fr/jcms/p_*/c*-*"],
-    "browser_style": true,
-    "default_icon": {
-      "16": "icons/casque-F1-16.png",
-      "32": "icons/casque-F1-32.png"
-    },
-    "default_title": "crawling"
-  },
-
-
   "browser_specific_settings": {
     "gecko": {
       "id": "inspyre_helper@f2guibert.com",
