@@ -26,6 +26,11 @@
           "version": "0.8",
           "update_link": "https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.8.xpi",
           "update_hash": "sha256:dec834baf211b8e1ad8e57e3394ed9dabce7e87953d2b19b15688b504f5d0f3e"
+        },
+        {
+          "version": "0.9",
+          "update_link": "https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.9.xpi",
+          "update_hash": "sha256:544230d7f3180b31d01e977907db377ec55d69e38096c4229bb09c46e8197645"
         }
       ]
     }

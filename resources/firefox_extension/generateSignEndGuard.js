@@ -43,7 +43,8 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
             fullRebuild = confirm('Souhaitez vous reconstruire le cumul des interventions depuis le 01 Janvier? \n' +
                 'Cela prendra quelques minutes. \n\n' +
                 'En cas de problème lisez la documentation ou contactez François de Guibert \n' +
-                'lien de la documentation : https://fdeguibert.github.io/scriptPriseDeGarde.github.io/');
+                'lien de la documentation :\n' +
+                'https://fdeguibert.github.io/scriptPriseDeGarde.github.io/');
             return false;
         }
         modalFooter.insertBefore(button, modalFooter.firstChild);
@@ -63,6 +64,7 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
         document.querySelector('div.form-group:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)').value = 'Fin de garde du ' + dayBefore.toLocaleDateString('fr');
         textArea.textContent = 'récupération des données en cours... Veuillez patienter. \n'
         textArea.style.height = '170px';
+        checkContentTextArea(textArea);
         if (fullRebuild) {
             fullRebuild = false;
             const startingDate = new Date();
