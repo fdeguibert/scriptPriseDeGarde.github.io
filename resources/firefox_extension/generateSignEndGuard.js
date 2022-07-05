@@ -2,11 +2,9 @@
 const EndGuardModalLinkToTest = document.querySelector('div.col-md-3:nth-child(3) > a:nth-child(1)');
 
 let fullRebuild = false;
-let allowSendMsg = false;
 let sendButton
 //check if modal is opened
 if (EndGuardModalLinkToTest != null && EndGuardModalLinkToTest.toString().includes('modal-saisie-signature')) {
-    console.log(fullRebuild)
     loadEndGuardScript(false);
 }
 
@@ -57,7 +55,6 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
             checkContentTextArea(textArea)
         }, true);
     }
-    // textArea.onchange(() => {console.log('on change du text area')})
     const isDisplayed = textArea != null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une signature");
     const dayBefore = new Date();
     dayBefore.setDate(dayBefore.getDate() - 1)
@@ -73,25 +70,20 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
             startingDate.setMonth(11);
             startingDate.setFullYear(startingDate.getFullYear() - 1);
             const eventsFromLatestValidSignature = countEventsFromDate(startingDate, textArea)
-            console.log(eventsFromLatestValidSignature)
             const textSign = buildNewSignText({
                 lastValidSignDate: undefined,
                 textSignature: undefined,
                 latestCountInters: 0,
                 latestCountInfos: 0
             }, eventsFromLatestValidSignature);
-            console.log(textSign);
             textArea.textContent = textSign;
         } else {
             const latestValidSignature = getLatestValidSignature();
-            console.log(latestValidSignature);
             const fromDate = latestValidSignature.lastValidSignDate;
             fromDate.setDate(latestValidSignature.lastValidSignDate.getDate() - 1)
             console.log('from date ' + fromDate.toLocaleDateString('fr'))
             const eventsFromLatestValidSignature = countEventsFromDate(fromDate, textArea)
-            console.log(eventsFromLatestValidSignature)
             const textSign = buildNewSignText(latestValidSignature, eventsFromLatestValidSignature);
-            console.log(textSign);
             textArea.textContent = textSign;
         }
         checkContentTextArea(textArea);
@@ -128,7 +120,6 @@ function countEventsFromDate(fromDate, textToUpdate) {
             'analyze des inters du ' + dateProcessed.toLocaleDateString('fr');
         //TODO ME replace URL with generic one (from current URL)
         const context = getHtmlDocumentFrom(`https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${dateProcessed.toLocaleDateString('fr').replace('-', '/')}`).getElementsByTagName('body')[0].getAttribute('id');
-        // console.log(context);
 
         const dataForDay = getDataForContext(context);
         const divs = dataForDay.getElementsByClassName('sdis78box');
@@ -206,7 +197,6 @@ function getLatestValidSignature() {
             let divClasses = divs[i].querySelector('div:nth-child(1)').className;
             if (divClasses === 'panel signature') {
                 textSignature = divs[i].querySelector('div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > p:nth-child(1)').textContent
-                console.log(textSignature)
                 if (textSignature.match('.*Cumul.*interventions.*: ([0-9]+).*') && textSignature.match('.*Cumul.*infos.*: ([0-9]+).*')) {
                     signatureFound = true;
                 }
