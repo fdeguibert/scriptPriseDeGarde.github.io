@@ -23,7 +23,7 @@ function getDataForContext(context) {
 
 function generateMessageFromDate(fromDate) {
     const stopDate = new Date();
-    stopDate.setDate(stopDate.getDate()+1);
+    stopDate.setDate(stopDate.getDate() + 1);
     const dateProcessed = fromDate;
     let dayYearBefore = true;
     let totalInters = 0;
@@ -63,7 +63,7 @@ function generateMessageFromDate(fromDate) {
             console.log(`infos comptabilisées : ${dailyInfos}`)
             totalInters += dailyInterventions;
             totalInfos += dailyInfos;
-        }else{
+        } else {
             dayYearBefore = false;
         }
         dayBeforeEvents = dailyEvents;
@@ -76,5 +76,9 @@ function generateMessageFromDate(fromDate) {
 
 }
 
-generateMessageFromDate(new Date('2021-12-31T03:03:03Z'));
+const startingDate = new Date();
+startingDate.setDate(31);
+startingDate.setDate(11);
+startingDate.setFullYear(startingDate.getFullYear()-1);
+generateMessageFromDate(startingDate);
 
