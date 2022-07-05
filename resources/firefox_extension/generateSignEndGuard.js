@@ -2,22 +2,44 @@
 const EndGuardModalLinkToTest = document.querySelector('div.col-md-3:nth-child(3) > a:nth-child(1)');
 
 let fullRebuild = false;
-let globalInfoDateProcessed = '';
+let allowSendMsg = false;
+let sendButton
 //check if modal is opened
 if (EndGuardModalLinkToTest != null && EndGuardModalLinkToTest.toString().includes('modal-saisie-signature')) {
     console.log(fullRebuild)
     loadEndGuardScript(false);
 }
 
+function checkContentTextArea(textArea){
+    if (textArea.value.match("Consignes passées au Chef de Garde montant.\n" +
+        "Interventions : [0-9]+.*\n" +
+        "Infos : [0-9]+.*\n" +
+        "Cumul interventions : [0-9]+.*\n" +
+        "Cumul infos : [0-9]+.*\n" +
+        "Personnel :.*[^ ]+.*\n" +
+        "Moyens :.*[^ ]+.*")) {
+
+        sendButton.disabled = false;
+        sendButton.value = 'Envoyer'
+
+    }else{
+        sendButton.disabled = true;
+        sendButton.value = 'Message Incomplet'
+    }
+}
 function loadEndGuardScript(wasAlreadyDisplayed) {
     const modalTitle = document.querySelector('#modalLabel');
     const modalFooter = document.querySelector('.modal-footer');
 
-    if (!wasAlreadyDisplayed && modalFooter) {
-
+    if (!wasAlreadyDisplayed && modalFooter && !document.querySelector('#added-button-by-ext')) {
+        //add safety on "envoyer" button
+        sendButton = modalFooter.querySelector('.btn-primary')
+        // sendButton.disabled = !allowSendMsg;
+        //add full rebuild button
         const button = document.createElement("button");
         button.innerHTML = "Reconstruire le cumul";
         button.className = 'btn btn-danger'
+        button.id = 'added-button-by-ext'
         button.style.float = 'left'
         button.onclick = () => {
             fullRebuild = confirm('Souhaitez vous reconstruire le cumul des interventions depuis le 01 Janvier? \n' +
@@ -30,6 +52,12 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
     }
 
     const textArea = document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1):nth-child(1)');
+    if (textArea) {
+        textArea.addEventListener('input', function () {
+            checkContentTextArea(textArea)
+        }, true);
+    }
+    // textArea.onchange(() => {console.log('on change du text area')})
     const isDisplayed = textArea != null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une signature");
     const dayBefore = new Date();
     dayBefore.setDate(dayBefore.getDate() - 1)
@@ -66,7 +94,7 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
             console.log(textSign);
             textArea.textContent = textSign;
         }
-
+        checkContentTextArea(textArea);
     }
     setTimeout(function () {
         loadEndGuardScript(isDisplayed);
