@@ -37,7 +37,7 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
         // sendButton.disabled = !allowSendMsg;
         //add full rebuild button
         const button = document.createElement("button");
-        button.innerHTML = "Reconstruire le cumul";
+        button.textContent = "Reconstruire le cumul";
         button.className = 'btn btn-danger'
         button.id = 'added-button-by-ext'
         button.style.float = 'left'
