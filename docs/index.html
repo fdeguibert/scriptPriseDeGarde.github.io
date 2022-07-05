@@ -1,13 +1,114 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <!-- head definitions go here -->
-    </head>
-    <body>
+<head>
+    <!-- head definitions go here -->
+    <title>InspyreHelper Doc</title>
+</head>
+<body>
 
-        Placeholder pour une future documentation.
+<h1>Documentation sur l'extension InspyreHelper (Version 0.8)</h1>
+<div>
+    <p>L&#39;extension InspyreHelper fonctionne sous Firefox (elle a &eacute;t&eacute; test&eacute;e sur la version 102
+        de Firefox mais doit
+        pouvoir fonctionner sur les versions pr&eacute;c&eacute;dentes</p>
+    <p>En cas de probl&egrave;me avec son fonctionnement, vous pouvez envoyer un mail &agrave;
+        francois.deguibert@sdis78.fr,
+        j&#39;essaierais de r&eacute;pondre le plus rapidement possible</p>
+</div>
+<h2>Installation</h2>
+<div>
+    <p>Pour installer cette extension, merci de t&eacute;l&eacute;charger le fichier inspyrehelper-0.8.xpi.xpi en
+        cliquant sur ce lien :
+        <a href="https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.8.xpi">inspyrehelper-0.8.xpi</a>
+    </p>
+    <p>Il vous suffit ensuite de double cliquer dessus. Si Firefox est install&eacute;, l&#39;extension sera ajout&eacute;e
+        &agrave; votre
+        navigateur (une fen&ecirc;tre de confirmation devrait appara&icirc;tre)</p>
+    <p>Les mises &agrave; jour de l&#39;extension seront automatiques</p>
+    <p>Note importante: l&#39;extension doit &ecirc;tre install&eacute;e sur chaque navigateur Firefox o&ugrave; vous
+        souhaitez l&#39;utiliser</p>
+</div>
+<h2>Fonctionnalit&eacute;s</h2>
+<div>
+    <p>Pour le moment cette extension ne permet qu&#39;une seule chose&nbsp;: g&eacute;n&eacute;rer le texte de la
+        signature de fin de garde du CS Chevreuse</p>
+</div>
+<h2>Mode d&#39;emploi</h2>
+<div>
+    <p>Une fois l&#39;extension install&eacute;e, rendez-vous sur la main courante et cliquez sur <img
+            src="SaisieDUneSignatureButton.png" alt="le bouton Saisie Signature"/></p>
+</div>
+<div>
+    <h3>Utilisation</h3>
+    <h4>Fonctionnement normal</h4>
+    <p>Par d&eacute;faut, l&#39;extension va rechercher la derni&egrave;re signature de fin de garde &quot;valide&quot;
+        (c&#39;est-&agrave;-dire dont le texte respecte le format standard de cette extension)</p>
+    <p>Le format standard en question est le suivant: </p>
+    <p style="font-family: 'Andale Mono',sans-serif">Consignes pass&eacute;es au Chef de Garde montant.<br>
+        Interventions : [un nombre]<br>
+        Infos : [un nombre]<br>
+        Cumul interventions : [un nombre]<br>
+        Cumul infos : [un nombre]<br>
+        Personnel : [un mot/texte]<br>
+        Moyens : [un mot/texte]<br></p>
+    <p>L&#39;extension comptera ensuite le nombre d&#39;interventions et d&#39;informations depuis la derni&egrave;re
+        signature valide et l&#39;ajoutera au total issu de la signature trouv&eacute;e</p>
+    <p>Le texte g&eacute;n&eacute;r&eacute; s&#39;affiche dans la fen&ecirc;tre de signature (pendant que l&#39;extension
+        fait ses recherches, un message invitant &agrave; patienter est affich&eacute;, et le bouton d&#39;envoie de la
+        signature est renomm&eacute; en &quot;Message incomplet&quot; et il est rendu inactif)</p>
+    <p>Une fois le texte g&eacute;n&eacute;r&eacute;, il n&#39;est toujours pas possible de valider la signature, car il
+        faut ajouter les informations sur le Personnel et les Moyens.<br>
+        Le texte peut &ecirc;tre n&#39;importe quoi, il faut juste qu&#39;il soit pr&eacute;sent. "RAS" par exemple s&#39;il
+        n&#39;y a rien de sp&eacute;cial &agrave; indiquer.</p>
+    <p>Quand les 2 lignes Personnel et Moyens sont remplies, le bouton de validation est renomm&eacute; en &quot;Envoyer&quot;
+        et il redevient actif afin de valider la signature.</p>
+    <p>Note: il est toujours possible de modifier manuellement les chiffres fournis par l'extension avant de
+        valider.</p>
 
-       <script>
-      </script>
-    </body>
+    <h4>Fonctionnement avanc&eacute;</h4>
+    <p>Pour diff&eacute;rentes raisons il peut &ecirc;tre n&eacute;cessaire de recompter les interventions et
+        informations depuis le d&eacute;but de l&#39;ann&eacute;e.</p>
+    <p>Par exemple, si c&#39;est la premi&egrave;re fois que l&#39;extension est utilis&eacute;e, elle peut ne pas
+        trouver pas de signature valide dans l&#39;historique de la main courante (en pratique, le format standard est
+        issu de message d&eacute;j&agrave; existant donc m&ecirc;me la premi&egrave;re fois que l&#39;extension est
+        utilis&eacute;e elle devrait fonctionner en mode par d&eacute;faut)</p>
+    <p>Un autre cas plus probable est s&#39;il y a eu des erreurs de comptage pendant l&#39;ann&eacute;e.</p>
+    <p>Dans ce cas, il faut utiliser le bouton <img src="reconstruireCumul.png" alt="Reconstruire Cumul"/> qui va
+        recompter toutes les interventions et informations depuis le d&eacute;but de l&#39;ann&eacute;e.</p>
+    <p>Cette action est un peu plus longue (quelques minutes).</p>
+    <p>En cliquant sur le bouton, une fen&ecirc;tre de confirmation apparait:</p>
+    <img src="confirmationCumul.png" alt="Confirmation cumul"/>
+    <p>Vous pouvez soit annuler l&#39;action, soit valider, auquel cas le calcul commence</p>
+    <p>Pendant le calcul, la fen&ecirc;tre de signature affiche un message dynamique indiquant o&ugrave; en est le
+        calcul et le bouton de validation de la signature continue d&#39;afficher &quot;Message Incomplet&quot; et reste
+        inactif:</p>
+    <IMG DE CALCUL EN COURS>
+    <p>Une fois le calcul termin&eacute; (quand il arrive &agrave; la date du jour), le message g&eacute;n&eacute;r&eacute;
+        appara&icirc;t dans la fen&ecirc;tre et la marche &agrave; suivre est la m&ecirc;me que pour le fonctionnement
+        par d&eacute;faut (renseigner un texte pour le Personnel et les Moyens)</p>
+
+    <h3>Probl&egrave;mes possibles</h3>
+    <p>J&#39;ai essay&eacute; de rendre cette extension la plus solide possible. Malheureusement, n&#39;ayant pas acc&egrave;s
+        au code d&#39;inspyre les moyens sont limit&eacute;s et les probl&egrave;mes peuvent arriver.</p>
+    <p>De mani&egrave;re g&eacute;n&eacute;rale, s&#39;il y a un probl&egrave;me (exemple&nbsp;: la fen&ecirc;tre de
+        signature ne s&#39;affiche pas, ou le calcul ne se lance pas, ou un bouton n&#39;appara&icirc;t pas/reste
+        inactif)</p>
+    <p>la premi&egrave;re action &agrave; mener est de:</p>
+    <p><b>RECHARGER LA PAGE (touche F5 du clavier)</b></p>
+
+    <p>Si cela ne r&eacute;sout pas le soucis et que &ccedil;a emp&egrave;che de remplir la signature de fin de garde, 2 options:</p>
+    <ul>
+        <li>Soit le plus simple&nbsp;: utiliser un autre navigateur qui n&#39;a pas l&#39;extension install&eacute;e dessus (soit un ordinateur du CS qui n&#39;a pas l&#39;extension install&eacute;e, soit la session windows de quelqu&#39;un d&#39;autre qui n&#39;a pas install&eacute; l&#39;extension ou bien un t&eacute;l&eacute;phone portable)</li>
+        <li>Soit, plus compliqu&eacute;&nbsp;: d&eacute;sactiver l&#39;extension.</li>
+        <p>Pour d&eacute;sactiver l&#39;extension, il faut se rendre dans le menu des extensions de firefox. Pour cela, rentrer dans la barre d&#39;adresse `about:addons` et valider ou cliquez directement sur ce lien: &lt;a href=&quot;about:addons&quot;&gt;Menu des extensions&lt;/a&gt; </p>
+        <img src="addonsMenu.png" alt="about:addons">
+        <p>Puis trouvez l&#39;extension InspireHelper et cliquez sur le bouton de d&eacute;sactivation : </p>
+        <img src="disableExtension.png" alt="desactiver extension"/>
+        <p>Puis revenez sur Inspyre et rechargez la page (touche F5). L&#39;extension &eacute;tant d&eacute;sactiv&eacute;e, vous reviendrez au fonctionnement &quot;standard&quot; d&#39;inspyre</p>
+        
+        <p>IMPORTANT: merci de me prévenir et de me décrire le problème rencontré afin que je puisse le corriger (contactez-moi soit directement, soit par Whatsapp, soit par mail : francois.deguibert@sdis78.fr</p>
+    </ul>
+</div>
+<script></script>
+</body>
 </html>

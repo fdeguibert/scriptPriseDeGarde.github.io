@@ -43,7 +43,7 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
             fullRebuild = confirm('Souhaitez vous reconstruire le cumul des interventions depuis le 01 Janvier? \n' +
                 'Cela prendra quelques minutes. \n\n' +
                 'En cas de problème lisez la documentation ou contactez François de Guibert \n' +
-                'lien de la documentation : https://google.fr');
+                'lien de la documentation : https://fdeguibert.github.io/scriptPriseDeGarde.github.io/');
             return false;
         }
         modalFooter.insertBefore(button, modalFooter.firstChild);
@@ -117,7 +117,7 @@ function countEventsFromDate(fromDate, textToUpdate) {
     while (!(dateProcessed.getDate() === stopDate.getDate() && dateProcessed.getMonth() === stopDate.getMonth())) {
         console.log('crawling for date : ' + dateProcessed.toLocaleDateString('fr'));
         textToUpdate.textContent = 'récupération des données en cours... Veuillez patienter. \n' +
-            'analyze des inters du ' + dateProcessed.toLocaleDateString('fr');
+            'Analyse des évènements du ' + dateProcessed.toLocaleDateString('fr') + '...';
         //TODO ME replace URL with generic one (from current URL)
         const context = getHtmlDocumentFrom(`https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${dateProcessed.toLocaleDateString('fr').replace('-', '/')}`).getElementsByTagName('body')[0].getAttribute('id');
 
