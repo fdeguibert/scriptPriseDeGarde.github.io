@@ -1,6 +1,19 @@
 // Actual script
 const EndGuardModalLinkToTest = document.querySelector('div.col-md-3:nth-child(3) > a:nth-child(1)');
 
+const HOUR_SHIFT_CHANGE = 7;
+const MINUTES_SHIFT_CHANGE = 30;
+const LATEST_SHIFT_CHANGE = defineLatestShiftChange(new Date());
+
+function defineLatestShiftChange(fromDate) {
+    if (fromDate.getHours() < HOUR_SHIFT_CHANGE || (fromDate.getHours() === HOUR_SHIFT_CHANGE && fromDate.getMinutes() < MINUTES_SHIFT_CHANGE)) {
+        // if current time is between midnight and shift change
+        fromDate.setDate(fromDate.getDate() - 1);
+    }
+    fromDate.setHours(HOUR_SHIFT_CHANGE, MINUTES_SHIFT_CHANGE, 0);
+    return fromDate
+}
+
 let mapTranslateMonths = [];
 mapTranslateMonths['janv.'] = 'Jan'
 mapTranslateMonths['févr.'] = 'Feb'
@@ -22,15 +35,6 @@ if (EndGuardModalLinkToTest != null && EndGuardModalLinkToTest.toString().includ
     loadEndGuardScript(false);
 }
 
-function checkContentTextArea(textToCheck) {
-    return !!textToCheck.match("Consignes passées au Chef de Garde montant.\n" +
-        "Interventions : [0-9]+.*\n" +
-        "Infos : [0-9]+.*\n" +
-        "Cumul interventions : [0-9]+.*\n" +
-        "Cumul infos : [0-9]+.*\n" +
-        "Personnel :.*[^ ]+.*\n" +
-        "Moyens :.*[^ ]+.*");
-}
 
 function checkValidSignature(textToCheck) {
     return !!(textToCheck.match('.*Cumul.*interventions.*: ([0-9]+).*') && textToCheck.match('.*Cumul.*infos.*: ([0-9]+).*'));
@@ -65,13 +69,7 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
     const textArea = document.querySelector('div.form-group:nth-child(2) > div:nth-child(2) > div:nth-child(1) > textarea:nth-child(1):nth-child(1)');
     if (textArea) {
         textArea.addEventListener('input', function () {
-            if (checkContentTextArea(textArea.value)) {
-                sendButton.disabled = false;
-                sendButton.value = 'Envoyer'
-            } else {
-                sendButton.disabled = true;
-                sendButton.value = 'Message Incomplet'
-            }
+            checkContentTextArea(textArea);
         }, true);
     }
     const isDisplayed = textArea != null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une signature");
@@ -81,24 +79,30 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
         document.querySelector('div.form-group:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)').value = 'Fin de garde du ' + dayBefore.toLocaleDateString('fr');
         textArea.textContent = 'récupération des données en cours... Veuillez patienter. \n'
         textArea.style.height = '170px';
-        if (checkContentTextArea(textArea.value)) {
-            sendButton.disabled = false;
-            sendButton.value = 'Envoyer'
-        } else {
-            sendButton.disabled = true;
-            sendButton.value = 'Message Incomplet'
-        }
-
+        checkContentTextArea(textArea);
         if (fullRebuild) {
+            fullRebuild = false;
+            console.log('full one')
             const currentDate = new Date();
             const today = new Date();
             const allDatas = []
+            const totalDays = daysBetweenDates(new Date(new Date().getFullYear(), 0, 1), today);
+
+
+            console.log((Math.round(daysBetweenDates(new Date(new Date().getFullYear(), 0, 1), currentDate) * 100.0 / totalDays) / 100) + '%');
             while (currentDate.getFullYear() === today.getFullYear()) {
+                const pourcentage = (100 - Math.round(daysBetweenDates(new Date(new Date().getFullYear(), 0, 1), currentDate) * 100.0 / totalDays)) + '%';
+
+                textArea.textContent = 'récupération des données en cours... Veuillez patienter. \n' +
+                    'Progression de l\'analyse : ' + pourcentage;
                 let eventsForDate = getEventsForDate(currentDate);
                 addIfNotAlreadyIn(allDatas, eventsForDate);
                 currentDate.setDate(currentDate.getDate() - 1);
             }
+            console.log(allDatas)
+            textArea.textContent = buildNewSignTextFullRebuild(allDatas)
         } else {
+            console.log('simple one')
             const currentDate = new Date();
             const endingDate = new Date();
             endingDate.setDate(endingDate.getDate() - 10); //TODO ME ajouter le "aucune signature valide trouvée dans la dernière semaine, faite un recumul
@@ -117,41 +121,20 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
             textArea.textContent = buildNewSignTextFromLatestValidSign(allDatas)
         }
 
-
-        // if (fullRebuild) {
-        //     fullRebuild = false;
-        //     const startingDate = new Date();
-        //     startingDate.setDate(31);
-        //     startingDate.setMonth(11);
-        //     startingDate.setFullYear(startingDate.getFullYear() - 1);
-        //     const eventsFromLatestValidSignature = countEventsFromDate(startingDate, textArea)
-        //     const textSign = buildNewSignText({
-        //         lastValidSignDate: undefined,
-        //         textSignature: undefined,
-        //         latestCountInters: 0,
-        //         latestCountInfos: 0
-        //     }, eventsFromLatestValidSignature);
-        //     textArea.textContent = textSign;
-        // } else {
-        //     const latestValidSignature = getLatestValidSignature();
-        //     const fromDate = latestValidSignature.lastValidSignDate;
-        //     fromDate.setDate(latestValidSignature.lastValidSignDate.getDate() - 1)
-        //     console.log('from date ' + fromDate.toLocaleDateString('fr'))
-        //     const eventsFromLatestValidSignature = countEventsFromDate(fromDate, textArea)
-        //     const textSign = buildNewSignText(latestValidSignature, eventsFromLatestValidSignature);
-        //     textArea.textContent = textSign;
-        // }
-        if (checkContentTextArea(textArea.value)) {
-            sendButton.disabled = false;
-            sendButton.value = 'Envoyer'
-        } else {
-            sendButton.disabled = true;
-            sendButton.value = 'Message Incomplet'
-        }
+        checkContentTextArea(textArea);
     }
     setTimeout(function () {
         loadEndGuardScript(isDisplayed);
     }, 300);
+
+}
+
+function buildNewSignTextFullRebuild(events) {
+    let firstEventBeforeShiftChange = events.findIndex((e) => e.dateTime < LATEST_SHIFT_CHANGE);
+    let eventsSinceLatestShiftChange = events.slice(0, firstEventBeforeShiftChange)
+    const latestShiftEvents = extractEventsCount(eventsSinceLatestShiftChange);
+    const totalCumul = extractEventsCount(events.slice(0, events.find(e => e.dateTime < new Date(new Date().getFullYear(), 0, 0, HOUR_SHIFT_CHANGE, MINUTES_SHIFT_CHANGE, 0))));
+    return buildText(latestShiftEvents.inters, latestShiftEvents.infos, totalCumul.inters, totalCumul.infos);
 
 }
 
@@ -160,13 +143,20 @@ function buildNewSignTextFromLatestValidSign(events) {
     if (eventLatestValidSign === -1) {
         return 'Aucune signature valide trouvée récemment, relancez un calcul complet';
     }
-    console.log(events[eventLatestValidSign])
-
     let latestCountInters = extractValue(events[eventLatestValidSign].content, '.*Cumul.*interventions.*: ([0-9]+).*');
     let latestCountInfos = extractValue(events[eventLatestValidSign].content, '.*Cumul.*infos.*: ([0-9]+).*');
+    let eventSinceLatestValidSign = events.slice(0, events.findIndex(e => e.validSignature === true))
+    const cumulSinceLatestValidSign = extractEventsCount(eventSinceLatestValidSign);
 
-    let eventsSinceLatestValid = events.slice(0, eventLatestValidSign)
-    const count = eventsSinceLatestValid.reduce((countAcc, ev) => {
+    let firstEventBeforeShiftChange = events.findIndex((e) => e.dateTime < LATEST_SHIFT_CHANGE);
+    let eventsSinceLatestShiftChange = events.slice(0, firstEventBeforeShiftChange)
+    const latestShiftEvents = extractEventsCount(eventsSinceLatestShiftChange);
+
+    return buildText(latestShiftEvents.inters, latestShiftEvents.infos, cumulSinceLatestValidSign.inters + latestCountInters, cumulSinceLatestValidSign.infos + latestCountInfos)
+}
+
+function extractEventsCount(events) {
+    return events.reduce((countAcc, ev) => {
         if (ev.type === 'inter') {
             countAcc.inters++
         } else if (ev.type === 'nonreponse') {
@@ -174,44 +164,17 @@ function buildNewSignTextFromLatestValidSign(events) {
         }
         return countAcc;
     }, {inters: 0, infos: 0})
-    const dateFormatOptions = {
-        year: 'numeric',
-        month: 'short',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    };
+}
 
-    const dateLimit = new Date();
-    dateLimit.setDate(dateLimit.getDate() - 1);
-    dateLimit.setHours(7, 30);
-
-    const latestShiftEvents = eventsSinceLatestValid.reduce((countAcc, ev) => {
-        let eventDate;
-        const eventDateFr = ev.title.split(' - ')[0];
-        for (const key in mapTranslateMonths) {
-            if (eventDateFr.includes(key)) {
-                let englishDate = eventDateFr.replace(key, mapTranslateMonths[key])
-                eventDate = Date.parse(englishDate);
-            }
-        }
-        if (ev.type === 'inter' && eventDate > dateLimit) {
-            countAcc.inters++
-        } else if (ev.type === 'nonreponse' && eventDate > dateLimit) {
-            countAcc.infos++
-        }
-
-        return countAcc;
-    }, {inters: 0, infos: 0})
-    console.log(latestShiftEvents)
+function buildText(currentInters, currentInfos, totalInters, totalInfos) {
     return "Consignes passées au Chef de Garde montant.\n" +
-        "Interventions : " + latestShiftEvents.inters + "\n" +
-        "Infos : " + latestShiftEvents.infos + "\n" +
-        "Cumul interventions : " + (latestCountInters + count.inters) + "\n" +
-        "Cumul infos : " + (latestCountInfos + count.infos) + "\n" +
-        "Personnel : " + "\n" +
-        "Moyens : ";
+        "Interventions : " + currentInters + "\n" +
+        "Infos : " + currentInfos + "\n" +
+        "Cumul interventions : " + totalInters + "\n" +
+        "Cumul infos : " + totalInfos + "\n" +
+        "Personnel : \n" +
+        "Moyens : \n" +
+        "Divers : ";
 }
 
 function addIfNotAlreadyIn(data, newDatas) {
@@ -220,68 +183,6 @@ function addIfNotAlreadyIn(data, newDatas) {
             data.push(newDatas[i]);
         }
     }
-}
-
-function deduplicateEvents(events) {
-    const deduplicated = [];
-    for (let i = 0; i < events.length; i++) {
-        if (deduplicated.findIndex((v) => v.title === events[i].title) === -1) {
-            deduplicated.push(events[i]);
-        }
-    }
-    return deduplicated;
-}
-
-function countEventsFromDate(fromDate, textToUpdate) {
-    const stopDate = new Date();
-    stopDate.setDate(stopDate.getDate() + 1);
-    const dateProcessed = fromDate;
-    let dayYearBefore = true;
-    let totalInters = 0;
-    let totalInfos = 0;
-    let dayBeforeEvents = [];
-    let dailyInterventions = 0;
-    let dailyInfos = 0;
-    while (!(dateProcessed.getDate() === stopDate.getDate() && dateProcessed.getMonth() === stopDate.getMonth())) {
-        console.log('crawling for date : ' + dateProcessed.toLocaleDateString('fr'));
-        textToUpdate.textContent = 'récupération des données en cours... Veuillez patienter. \n' +
-            'Analyse des évènements du ' + dateProcessed.toLocaleDateString('fr') + '...';
-        //TODO ME replace URL with generic one (from current URL)
-        const context = getHtmlDocumentFrom(`https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${dateProcessed.toLocaleDateString('fr').replace('-', '/')}`).getElementsByTagName('body')[0].getAttribute('id');
-
-        const dataForDay = getDataForContext(context);
-        const divs = dataForDay.getElementsByClassName('sdis78box');
-        const dailyEvents = [];
-        for (let i = 0; i < divs.length; i++) {
-            let divClasses = divs[i].querySelector('div:nth-child(1)').className;
-            if (divClasses === 'panel inter' || divClasses === 'panel nonreponse') {
-                dailyEvents.push(divClasses + ' ' + divs[i].querySelector('div:nth-child(1) > div:nth-child(2)> div:nth-child(1) > div:nth-child(1)> div:nth-child(1)> p:nth-child(1)').textContent)
-            }
-        }
-        const distinctDailyEvents = dailyEvents.filter((title) => !dayBeforeEvents.includes(title));
-
-        dailyInterventions = distinctDailyEvents.filter(title => title.startsWith('panel inter')).length;
-        dailyInfos = distinctDailyEvents.filter(title => title.startsWith('panel nonreponse')).length;
-
-
-        if (!dayYearBefore) {
-            console.log(`inters comptabilisées : ${dailyInterventions}`)
-            console.log(`infos comptabilisées : ${dailyInfos}`)
-            totalInters += dailyInterventions;
-            totalInfos += dailyInfos;
-        } else {
-            dayYearBefore = false;
-        }
-        dayBeforeEvents = dailyEvents;
-        dateProcessed.setDate(dateProcessed.getDate() + 1);
-    }
-    console.log(`* nouvelles inters depuis la date: ${totalInters}`)
-    console.log(`*  nouvelles infos depuis la date: ${totalInfos}`)
-    return {
-        totalInters,
-        totalInfos
-    }
-
 }
 
 function getHtmlDocumentFrom(url) {
@@ -327,47 +228,23 @@ function getEventsForDate(date) {
         if (type === 'signature') {
             validSignature = checkValidSignature(content);
         }
+        let dateTime = undefined;
+        const eventDateFr = title.split(' - ')[0];
+        for (const key in mapTranslateMonths) {
+            if (eventDateFr.includes(key)) {
+                let englishDate = eventDateFr.replace(key, mapTranslateMonths[key])
+                dateTime = Date.parse(englishDate);
+            }
+        }
         dataParsed.push({
             type,
             title,
             content,
-            validSignature
+            validSignature,
+            dateTime
         })
     }
     return dataParsed;
-}
-
-
-function getLatestValidSignature() {
-    let signatureFound = false;
-    let dateProcessed = new Date()
-    let textSignature = ''
-    while (!signatureFound) {
-        console.log(`search for ${dateProcessed.toLocaleDateString('fr')}`)
-        const context = getHtmlDocumentFrom(`https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${dateProcessed.toLocaleDateString('fr').replace('-', '/')}`).getElementsByTagName('body')[0].getAttribute('id');
-        const dataForDay = getDataForContext(context);
-
-        const divs = dataForDay.getElementsByClassName('sdis78box');
-        for (let i = 0; i < divs.length; i++) {
-            let divClasses = divs[i].querySelector('div:nth-child(1)').className;
-            if (divClasses === 'panel signature') {
-                textSignature = divs[i].querySelector('div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > p:nth-child(1)').textContent
-                if (textSignature.match('.*Cumul.*interventions.*: ([0-9]+).*') && textSignature.match('.*Cumul.*infos.*: ([0-9]+).*')) {
-                    signatureFound = true;
-                }
-            }
-        }
-        if (!signatureFound) {
-            dateProcessed.setDate(dateProcessed.getDate() - 1);
-        }
-    }
-    return {
-        lastValidSignDate: dateProcessed,
-        textSignature: textSignature,
-        latestCountInters: extractValue(textSignature, '.*Cumul.*interventions.*: ([0-9]+).*'),
-        latestCountInfos: extractValue(textSignature, '.*Cumul.*infos.*: ([0-9]+).*')
-    }
-
 }
 
 function extractValue(latestSignatureText, regexp) {
@@ -379,11 +256,24 @@ function extractValue(latestSignatureText, regexp) {
     }
 }
 
-function calculateNewTotal(latestSignatureText, regexp, dailyEvents) {
-    const match = latestSignatureText.match(regexp);
-    if (match === null) {
-        return 'ECHEC, renseignez les données à la main';
+function daysBetweenDates(date1, date2) {
+    let difference = date1.getTime() - date2.getTime();
+    return Math.ceil(difference / (1000 * 3600 * 24));
+}
+
+function checkContentTextArea(textAreaToCheck) {
+    if (!!textAreaToCheck.value.match("Consignes passées au Chef de Garde montant.\n" +
+        "Interventions : [0-9]+.*\n" +
+        "Infos : [0-9]+.*\n" +
+        "Cumul interventions : [0-9]+.*\n" +
+        "Cumul infos : [0-9]+.*\n" +
+        "Personnel :.*[^ ]+.*\n" +
+        "Moyens :.*[^ ]+.*\n" +
+        "Divers :.*[^ ]+.*")) {
+        sendButton.disabled = false;
+        sendButton.value = 'Envoyer'
     } else {
-        return dailyEvents + parseInt(match[1]);
+        sendButton.disabled = true;
+        sendButton.value = 'Message Incomplet'
     }
 }

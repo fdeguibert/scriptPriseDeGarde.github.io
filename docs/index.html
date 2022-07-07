@@ -47,7 +47,8 @@
         Cumul interventions : [un nombre]<br>
         Cumul infos : [un nombre]<br>
         Personnel : [un mot ou texte]<br>
-        Moyens : [un mot ou texte]<br></p>
+        Moyens : [un mot ou texte]<br>
+        Divers : [un mot ou texte]<br></p>
 
     <p>L&#39;extension comptera ensuite le nombre d&#39;interventions et d&#39;informations depuis la derni&egrave;re
         signature valide et l&#39;ajoutera au total issu de la signature trouv&eacute;e.</p>
@@ -56,12 +57,12 @@
         signature est renomm&eacute; en &quot;Message incomplet&quot; et il est rendu inactif) :</p>
     <img src="assets/OngoingSimpleCalculation.png" alt="calcul simple en cours">
     <p>Une fois le texte g&eacute;n&eacute;r&eacute;, il n&#39;est toujours pas possible de valider la signature, car il
-        faut ajouter les informations sur le Personnel et les Moyens.</p>
+        faut ajouter les informations sur les lignes vides (Personnels, Moyens, Divers).</p>
     <img src="assets/invalidText.png" alt="message invalide">
     <p> Le texte peut &ecirc;tre n&#39;importe quoi, il faut juste qu&#39;il soit pr&eacute;sent. "RAS" par exemple s&#39;il
         n&#39;y a rien de sp&eacute;cial &agrave; indiquer.</p>
     <img src="assets/validText.png" alt="texte valide">
-    <p>Quand les 2 lignes Personnel et Moyens sont remplies, le bouton de validation est renomm&eacute; en &quot;Envoyer&quot;
+    <p>Quand les 2 lignes vides sont remplies, le bouton de validation est renomm&eacute; en &quot;Envoyer&quot;
         et il redevient actif afin de valider la signature.</p>
     <p>Note: il est toujours possible de modifier manuellement les chiffres fournis par l'extension avant de
         valider.</p>
@@ -84,7 +85,7 @@
         calcul et le bouton de validation de la signature continue d&#39;afficher &quot;Message Incomplet&quot; et reste
         inactif:</p>
     <img src="assets/OngoingCumulCalculation.png" alt="calcul en cours">
-    <p>Une fois le calcul termin&eacute; (quand il arrive &agrave; la date du jour), le message g&eacute;n&eacute;r&eacute;
+    <p>Une fois le calcul termin&eacute;, le message g&eacute;n&eacute;r&eacute;
         appara&icirc;t dans la fen&ecirc;tre et la marche &agrave; suivre est la m&ecirc;me que pour le fonctionnement
         par d&eacute;faut (renseigner un texte pour le Personnel et les Moyens)</p>
 
