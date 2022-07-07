@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "InspyreHelper",
-  "version": "0.10.0",
+  "version": "0.10.1",
 
   "description": "Ajoute des options sur Inspyre, comme la génération de la signature de fin de garde.",
 

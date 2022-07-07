@@ -82,14 +82,12 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
         checkContentTextArea(textArea);
         if (fullRebuild) {
             fullRebuild = false;
-            console.log('full one')
             const currentDate = new Date();
             const today = new Date();
             const allDatas = []
             const totalDays = daysBetweenDates(new Date(new Date().getFullYear(), 0, 1), today);
 
 
-            console.log((Math.round(daysBetweenDates(new Date(new Date().getFullYear(), 0, 1), currentDate) * 100.0 / totalDays) / 100) + '%');
             while (currentDate.getFullYear() === today.getFullYear()) {
                 const pourcentage = (100 - Math.round(daysBetweenDates(new Date(new Date().getFullYear(), 0, 1), currentDate) * 100.0 / totalDays)) + '%';
 
@@ -102,7 +100,6 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
             console.log(allDatas)
             textArea.textContent = buildNewSignTextFullRebuild(allDatas)
         } else {
-            console.log('simple one')
             const currentDate = new Date();
             const endingDate = new Date();
             endingDate.setDate(endingDate.getDate() - 10); //TODO ME ajouter le "aucune signature valide trouvée dans la dernière semaine, faite un recumul
@@ -133,7 +130,7 @@ function buildNewSignTextFullRebuild(events) {
     let firstEventBeforeShiftChange = events.findIndex((e) => e.dateTime < LATEST_SHIFT_CHANGE);
     let eventsSinceLatestShiftChange = events.slice(0, firstEventBeforeShiftChange)
     const latestShiftEvents = extractEventsCount(eventsSinceLatestShiftChange);
-    const totalCumul = extractEventsCount(events.slice(0, events.find(e => e.dateTime < new Date(new Date().getFullYear(), 0, 0, HOUR_SHIFT_CHANGE, MINUTES_SHIFT_CHANGE, 0))));
+    const totalCumul = extractEventsCount(events.slice(0, events.find(e => e.dateTime < new Date(new Date().getFullYear(), 0, 1, HOUR_SHIFT_CHANGE, MINUTES_SHIFT_CHANGE, 0))));
     return buildText(latestShiftEvents.inters, latestShiftEvents.infos, totalCumul.inters, totalCumul.infos);
 
 }
