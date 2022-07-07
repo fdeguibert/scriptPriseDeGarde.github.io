@@ -73,9 +73,10 @@ function loadEndGuardScript(wasAlreadyDisplayed) {
         }, true);
     }
     const isDisplayed = textArea != null && textArea.offsetParent != null && modalTitle != null && modalTitle.textContent.includes("Saisie d'une signature");
-    const dayBefore = new Date();
-    dayBefore.setDate(dayBefore.getDate() - 1)
+
     if (isDisplayed && (!wasAlreadyDisplayed || fullRebuild)) {
+        const dayBefore = new Date();
+        dayBefore.setDate(dayBefore.getDate() - 1)
         document.querySelector('div.form-group:nth-child(1) > div:nth-child(2) > div:nth-child(1) > input:nth-child(1)').value = 'Fin de garde du ' + dayBefore.toLocaleDateString('fr');
         textArea.textContent = 'récupération des données en cours... Veuillez patienter. \n'
         textArea.style.height = '170px';
@@ -130,7 +131,7 @@ function buildNewSignTextFullRebuild(events) {
     let firstEventBeforeShiftChange = events.findIndex((e) => e.dateTime < LATEST_SHIFT_CHANGE);
     let eventsSinceLatestShiftChange = events.slice(0, firstEventBeforeShiftChange)
     const latestShiftEvents = extractEventsCount(eventsSinceLatestShiftChange);
-    const totalCumul = extractEventsCount(events.slice(0, events.find(e => e.dateTime < new Date(new Date().getFullYear(), 0, 1, HOUR_SHIFT_CHANGE, MINUTES_SHIFT_CHANGE, 0))));
+    const totalCumul = extractEventsCount(events.slice(0, events.findIndex(e => e.dateTime < new Date(new Date().getFullYear(), 0, 1, HOUR_SHIFT_CHANGE, MINUTES_SHIFT_CHANGE, 0))));
     return buildText(latestShiftEvents.inters, latestShiftEvents.infos, totalCumul.inters, totalCumul.infos);
 
 }
