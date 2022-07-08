@@ -170,7 +170,7 @@ function buildText(currentInters, currentInfos, totalInters, totalInfos) {
         "Infos : " + currentInfos + "\n" +
         "Cumul interventions : " + totalInters + "\n" +
         "Cumul infos : " + totalInfos + "\n" +
-        "Personnel : \n" +
+        "Personnels : \n" +
         "Moyens : \n" +
         "Divers : ";
 }
@@ -265,7 +265,7 @@ function checkContentTextArea(textAreaToCheck) {
         "Infos : [0-9]+.*\n" +
         "Cumul interventions : [0-9]+.*\n" +
         "Cumul infos : [0-9]+.*\n" +
-        "Personnel :.*[^ ]+.*\n" +
+        "Personnels :.*[^ ]+.*\n" +
         "Moyens :.*[^ ]+.*\n" +
         "Divers :.*[^ ]+.*")) {
         sendButton.disabled = false;
