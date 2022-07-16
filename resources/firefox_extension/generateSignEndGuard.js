@@ -20,7 +20,6 @@ function isModalActive() {
 
 const endGuardModalLink = document.querySelector('a[href*="modal-saisie-signature.jsp"]');
 endGuardModalLink.onclick = () => {
-
     const currentCS = getCS();
 
     if (currentCS && KNOWN_CS.includes(currentCS)) {
@@ -40,6 +39,42 @@ endGuardModalLink.onclick = () => {
             setTimeout(loader, 15);
         }
     }
+}
+
+function fetchDatasForDate(date) {
+    const contextUrl = `https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${date.toLocaleDateString('fr').replace('-', '/')}`
+    const htmlForContext = fetch(contextUrl);
+    // console.log(date + ' is fetching')
+    return htmlForContext.then(function (response) {
+        // The API call was successful!
+        return response.text();
+    }).then(function (html) {
+        // This is the HTML from our response as a text string
+        const parser = new DOMParser();
+        return parser.parseFromString(html, 'text/html').getElementsByTagName('body')[0].getAttribute('id');
+    }).then(function (contextId) {
+        const headers = new Headers();
+        headers.set('X-Jcms-Ajax-Id', contextId)
+        return fetch('https://portail.sdis78.fr/plugins/MainCourantePlugin/jsp/doMciList.jsp', {headers});
+    }).then(function (responseWithData) {
+        return new Promise(function (resolve, reject) {
+            if (responseWithData.status !== 200) {
+                reject("API limit is reached")
+            } else {
+                resolve(responseWithData.text())
+            }
+        });
+    }).then(function (responseWithDataAsHtml) {
+        const parser = new DOMParser();
+        return parser.parseFromString(responseWithDataAsHtml, 'text/html');
+    }).then(function (htmlDoc) {
+        // console.log(date + ' is fetched')
+        return extractEventsFromHtml(htmlDoc)
+    }).catch(function (err) {
+        // There was an error
+        console.warn('Une erreur est survenue:', err);
+        return undefined;
+    });
 }
 
 function loadEndGuardGenerator(csCode) {
@@ -63,19 +98,23 @@ function loadEndGuardGenerator(csCode) {
 }
 
 
-function defaultGeneration(csCode) {
+async function defaultGeneration(csCode) {
     const shiftChangeTime = getTimeChangeShift(csCode);
 
     const currentDate = new Date();
     currentDate.setHours(shiftChangeTime.hourShiftChange, shiftChangeTime.minutesShiftChange)
     const maxRetrievalDate = new Date(currentDate);
-    maxRetrievalDate.setDate(maxRetrievalDate.getDate() - 10); //TODO ME ajouter le "aucune signature valide trouvée dans la dernière semaine, faite un recumul
+    maxRetrievalDate.setDate(maxRetrievalDate.getDate() - 5); //TODO ME ajouter le "aucune signature valide trouvée dans la dernière semaine, faite un recumul
 
-    const allDatas = getEventsFromDateToDate(maxRetrievalDate, currentDate, true);
+    let allDatas = await getEventsFromDateToDateParallelized(maxRetrievalDate, currentDate, 10);
+    if (!allDatas) {
+        alert('une erreur est survenue durant l\'appel au serveur, le calcul va recommencer, plus lentement pour éviter les erreurs de surcharge serveur')
+        allDatas = await getEventsFromDateToDateParallelized(maxRetrievalDate, currentDate, 1);
+    }
     getTextArea().textContent = buildNewSignTextFromLatestValidSign(allDatas, csCode)
 }
 
-function fullRebuildGeneration(csCode) {
+async function fullRebuildGeneration(csCode) {
     const textArea = document.querySelector('textarea[name="detail"]');
 
     const changeTimeShift = getTimeChangeShift(csCode)
@@ -83,9 +122,13 @@ function fullRebuildGeneration(csCode) {
     const endingDate = new Date();
     endingDate.setHours(changeTimeShift.hourShiftChange, changeTimeShift.minutesShiftChange, 0)
 
-    const allDatas = getEventsFromDateToDate(startingDate, endingDate, false);
+    getTextArea().textContent = 'Démarrage de la récupération des données...';
+    let allDatas = await getEventsFromDateToDateParallelized(startingDate, endingDate, 10);
+    if (!allDatas) {
+        alert('une erreur est survenue durant l\'appel au serveur, le calcul va recommencer, plus lentement pour éviter les erreurs de surcharge serveur')
+        allDatas = await getEventsFromDateToDateParallelized(startingDate, endingDate, 2);
+    }
     console.log(allDatas)
-    allDatas.forEach(e => console.log(e))
     textArea.textContent = buildNewSignTextFullRebuild(allDatas)
 }
 
@@ -119,7 +162,7 @@ function addRebuildCumulButton() {
  * retrieve all events from startingDate to endingDate
  * @param startingDate
  * @param endingDate
- * @param stopAtFirstValidSignature - should stop crawling when valid signature is found if it's not the current day signature
+ * @param chunkSize - batch size to avoid api limit
  * @returns {{
  *             type,
  *             title,
@@ -128,29 +171,53 @@ function addRebuildCumulButton() {
  *             dateTime
  *         }[]}
  */
-function getEventsFromDateToDate(startingDate, endingDate, stopAtFirstValidSignature) {
-    const allDatas = []
-    let validSignatureFound = false;
-
-    let processedDate = endingDate;
-    const totalDays = daysBetweenDates(startingDate, endingDate);
-    getTextArea().textContent = 'Récupération des données en cours... Veuillez patienter. \n' +
-        'Progression de l\'analyse : 0%';
-    while (!validSignatureFound && processedDate > startingDate && isModalActive()) { //added isModalActive to avoid sending request if modal window is closed by user
-        const pourcentage = (100 - Math.round(daysBetweenDates(startingDate, processedDate) * 100.0 / totalDays)) + '%';
-        getTextArea().textContent = 'Récupération des données en cours... Veuillez patienter. \n' +
-            'Progression de l\'analyse : ' + pourcentage;
-
-        let eventsForDate = getEventsForDay(processedDate);
-        if (stopAtFirstValidSignature && eventsForDate.findIndex(v => v.validSignature === true && new Date(v.dateTime).getDate() !== endingDate.getDate()) !== -1) {
-            // a valid signature different from the current day one has been found
-            validSignatureFound = true;
-        } else {
-            processedDate.setDate(processedDate.getDate() - 1);
-        }
-        addIfNotAlreadyIn(allDatas, eventsForDate);
+async function getEventsFromDateToDateParallelized(startingDate, endingDate, chunkSize = 1) {
+    const allDatesToProcess = [];
+    const toProcessedDate = new Date(endingDate);
+    while (toProcessedDate > startingDate) {
+        allDatesToProcess.push(new Date(toProcessedDate));
+        toProcessedDate.setDate(toProcessedDate.getDate() - 1);
     }
-    return allDatas;
+    const total = allDatesToProcess.length;
+    let fetchedCount = 0;
+    const chunkedDates = allDatesToProcess.reduce((resultArray, item, index) => {
+        const chunkIndex = Math.floor(index / chunkSize)
+        if (!resultArray[chunkIndex]) {
+            resultArray[chunkIndex] = [] // start a new chunk
+        }
+        resultArray[chunkIndex].push(item)
+        return resultArray
+    }, [])
+
+    const allSummed = [];
+    let errorOccured = false;
+    for (let i = 0; i < chunkedDates.length; i++) {
+        if (!isModalActive()) {
+            break;
+        }
+        const chunkedEvents = await Promise.all(chunkedDates[i].map(date => fetchDatasForDate(date).then((data) => {
+            fetchedCount++
+            getTextArea().textContent = 'Récupération des données en cours... Veuillez patienter. \n' +
+                'Progression de l\'analyse : ' + Math.round((fetchedCount * 100.0) / total) + '%';
+            return data;
+        }))).then((result) => {
+            const eventsForChunk = [];
+            result.forEach(events => {
+                addIfNotAlreadyIn(eventsForChunk, events)
+            });
+            return eventsForChunk;
+        }).catch(() => {
+            console.warn('error occurred during api fetching')
+            return undefined;
+        });
+        if (!chunkedEvents) {
+            errorOccured = true;
+            break;
+        }
+        addIfNotAlreadyIn(allSummed, chunkedEvents);
+
+    }
+    return errorOccured ? undefined : allSummed;
 }
 
 /**
@@ -182,10 +249,13 @@ function extractEventsCount(events) {
  *         }[]}
  */
 function getEventsForDay(date) {
-    const context = getHtmlDocumentFrom(`https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${date.toLocaleDateString('fr').replace('-', '/')}`).getElementsByTagName('body')[0].getAttribute('id');
-    const dataForDay = getDataForContext(context);
+    const dataForDay = getDataForDay(date);
+    return extractEventsFromHtml(dataForDay)
+}
 
-    const eventsDiv = dataForDay.getElementsByClassName('sdis78box');
+function extractEventsFromHtml(htmlDoc) {
+
+    const eventsDiv = htmlDoc.getElementsByClassName('sdis78box');
     const dataParsed = [];
     for (let i = 0; i < eventsDiv.length; i++) {
         const eventDiv = eventsDiv[i].querySelector('div:nth-child(1)')
@@ -250,7 +320,6 @@ function addIfNotAlreadyIn(events, newEvents) {
 function checkContentTextArea(textAreaToCheck) {
     const modalFooter = document.querySelector('.modal-footer');
     const sendButton = modalFooter.querySelector('.btn-primary')
-    console.log(sendButton)
     if (!!textAreaToCheck.value.match("Consignes passées au Chef de Garde montant.\n" +
         "Interventions : [0-9]+.*\n" +
         "Infos : [0-9]+.*\n" +
@@ -371,10 +440,12 @@ function getHtmlDocumentFrom(url) {
 
 /**
  * get events as HTML from url with context param to select date
- * @param context - the context id to select date for events
+ * @param date - the date for which we want events
  * @returns {HTMLHtmlElement}
  */
-function getDataForContext(context) {
+function getDataForDay(date) {
+    const context = getHtmlDocumentFrom(`https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${date.toLocaleDateString('fr').replace('-', '/')}`).getElementsByTagName('body')[0].getAttribute('id');
+
     const xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", 'https://portail.sdis78.fr/plugins/MainCourantePlugin/jsp/doMciList.jsp', false);
     xmlHttp.setRequestHeader('X-Jcms-Ajax-Id', context)
