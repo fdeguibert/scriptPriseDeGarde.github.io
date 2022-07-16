@@ -1,6 +1,12 @@
-// Actual script
+function getCS() {
+    const url = window.location.href;
 
-const CS = 'CHE'
+    if (url.includes('cs-chevreuse')) {
+        return 'CHE';
+    }
+    return undefined;
+}
+
 const KNOWN_CS = ['CHE']
 
 function getTextArea() {
@@ -14,25 +20,25 @@ function isModalActive() {
 
 const endGuardModalLink = document.querySelector('a[href*="modal-saisie-signature.jsp"]');
 endGuardModalLink.onclick = () => {
-    //TODO retrieve and store the CS based on the URL
 
-    function loader() {
-        const textArea = document.querySelector('textarea[name="detail"]');
-        if (textArea != null && textArea.offsetParent != null) {
-            loadEndGuardGenerator(CS);
-            console.log("WE ARE GO")
-        } else {
-            setTimeout(loader, 15);
-        }
-    }
+    const currentCS = getCS();
 
-    if (KNOWN_CS.includes(CS)) {
+    if (currentCS && KNOWN_CS.includes(currentCS)) {
         loader();
     } else {
         alert('Malheureusement votre CS n\'est pas encore configuré pour cette extension \n' +
             'Envoyez un mail à francois.deguibert@sdis78.fr pour qu\'on l\'ajoute et que l\'extension fonctionne. \n' +
             'En attendant, l\'extension sera désactivée \n' +
             '(Supprimez la de Firefox pour éviter d\'avoir ce message à chaque fois)');
+    }
+
+    function loader() {
+        const textArea = document.querySelector('textarea[name="detail"]');
+        if (textArea != null && textArea.offsetParent != null) {
+            loadEndGuardGenerator(currentCS);
+        } else {
+            setTimeout(loader, 15);
+        }
     }
 }
 
@@ -75,7 +81,7 @@ function fullRebuildGeneration(csCode) {
     const changeTimeShift = getTimeChangeShift(csCode)
     const startingDate = new Date(new Date().getFullYear(), 0, 1, changeTimeShift.hourShiftChange, changeTimeShift.minutesShiftChange, 0)
     const endingDate = new Date();
-    endingDate.setHours(changeTimeShift.hourShiftChange, changeTimeShift.minutesShiftChange,0)
+    endingDate.setHours(changeTimeShift.hourShiftChange, changeTimeShift.minutesShiftChange, 0)
 
     const allDatas = getEventsFromDateToDate(startingDate, endingDate, false);
     console.log(allDatas)
@@ -380,7 +386,6 @@ function getDataForContext(context) {
 }
 
 
-//Utils not checked
 function buildNewSignTextFullRebuild(events, csCode) {
     let eventsSinceLatestShiftChange = events.slice(events.findIndex(e => e.dateTime <= getEndShiftDateTime(csCode)), events.findIndex(e => e.dateTime < getStartShiftDateTime(csCode)))
     const latestShiftEvents = extractEventsCount(eventsSinceLatestShiftChange);
@@ -406,19 +411,6 @@ function buildNewSignTextFromLatestValidSign(events, csCode) {
 
     return buildText(latestShiftEvents.inters, latestShiftEvents.infos, cumulSinceLatestValidSign.inters + latestCountInters, cumulSinceLatestValidSign.infos + latestCountInfos)
 }
-
-// const HOUR_SHIFT_CHANGE = 7;
-// const MINUTES_SHIFT_CHANGE = 30;
-// const LATEST_SHIFT_CHANGE = defineLatestShiftChange(new Date());
-//
-// function defineLatestShiftChange(fromDate) {
-//     if (fromDate.getHours() < HOUR_SHIFT_CHANGE || (fromDate.getHours() === HOUR_SHIFT_CHANGE && fromDate.getMinutes() < MINUTES_SHIFT_CHANGE)) {
-//         // if current time is between midnight and shift change
-//         fromDate.setDate(fromDate.getDate() - 1);
-//     }
-//     fromDate.setHours(HOUR_SHIFT_CHANGE, MINUTES_SHIFT_CHANGE, 0);
-//     return fromDate
-// }
 
 
 const mapTranslateMonths = [];
