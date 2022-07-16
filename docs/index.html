@@ -5,6 +5,11 @@
     <title>InspyreHelper Doc</title>
 </head>
 <body>
+<!-- Lightweight client-side loader that feature-detects and load polyfills only when necessary -->
+<script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2/webcomponents-loader.min.js"></script>
+
+<!-- Load the element definition -->
+<script type="module" src="https://cdn.jsdelivr.net/gh/zerodevx/zero-md@1/src/zero-md.min.js"></script>
 
 <h1>Documentation sur l'extension InspyreHelper (Version 0.11.0)</h1>
 <div>
@@ -133,11 +138,6 @@
     </ul>
     <h4>probl&egrave;mes connus et solutions</h4>
     <ul>
-        <li><p>Lorsqu&#39;on lance un calcul du cumul depuis le d&eacute;but de l&#39;ann&eacute;e, puis qu&#39;on
-            ferme la fen&egrave;tre de signature avant la fin, puis rouvre la fen&ecirc;tre, l&#39;extension ne se red&eacute;clenche
-            plus</p>
-            <p><b>Solution:</b> recharger la page (touche F5)</p>
-        </li>
         <li>
             <p>Lorsqu&#39;on lance un calcul de cumul depuis le d&eacute;but de l&#39;ann&eacute;e, il arrive que la
                 Main courante affiche le panneau &quot;Pas d&#39;&eacute;v&egrave;nements pour cette date.&quot; sous la
@@ -157,7 +157,16 @@
                 rechargez la page.<br>
                 Puis rouvrez une fen&ecirc;tre de signature et collez le texte avant de valider.</p>
         </li>
+        <li><p><b>RESOLU en v0.11.0</b></p>
+            <p style="text-decoration: line-through">Lorsqu&#39;on lance un calcul du cumul depuis le d&eacute;but de l&#39;ann&eacute;e, puis qu&#39;on
+            ferme la fen&egrave;tre de signature avant la fin, puis rouvre la fen&ecirc;tre, l&#39;extension ne se red&eacute;clenche
+            plus</p>
+            <p style="text-decoration: line-through"><b>Solution:</b> recharger la page (touche F5)</p>
+        </li>
     </ul>
+
+    <h3>Changelog</h3>
+    <zero-md src="assets/CHANGELOG.md"></zero-md>
 </div>
 <script></script>
 </body>

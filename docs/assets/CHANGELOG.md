@@ -1,5 +1,11 @@
-## version 0.11.0
-### revu du calcul
+### version 0.12.0
+Pas de modification fonctionnelle. La récupération des données a par contre été fortement accélérée.  
+Notamment lors du recalcul complet.
+Si le réseau d'inspyre est déjà fortement solicité, cela peut entraîner des erreurs (normalement l'extension ne pousse pas inspyre dans ses limites donc cela ne devrait pas arriver)  
+Si toutefois c'était le cas, le calcul est relancé après un message d'alert, en mode lent.
+
+### version 0.11.0
+#### revu du calcul
 le calcul des interventions a été revu:   
 Quelque soit l'heure de génération, le texte généré sera celui de la garde précédente.    
 
@@ -13,13 +19,13 @@ Ceci permet à l'extension de fonctionner correctement quelque soit l'heure de g
 
 Ceci s'applique aussi au recalcul du cumul total annuel.
 
-### préparation à l'intégration d'autres CS
+#### préparation à l'intégration d'autres CS
 la partie technique permettant de faire fonctionner l'extension sur d'autres CS a été ajoutée
 
-### documentation
+#### documentation
 la documentation est améliorée pour montrer l'installation de l'extension sous forme de gif
 
-## version 0.10.3
+### version 0.10.3
 Première version publiée   
 * permet la génération de la signature de fin de garde du jour
 * permet un calcul du cumul depuis le début de l'année
