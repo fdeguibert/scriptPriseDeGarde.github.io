@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<h1>Documentation sur l'extension InspyreHelper (Version 0.10.3)</h1>
+<h1>Documentation sur l'extension InspyreHelper (Version 0.11.0)</h1>
 <div>
     <p>L&#39;extension InspyreHelper fonctionne sous Firefox (elle a &eacute;t&eacute; test&eacute;e sur la version 102
         de Firefox mais doit pouvoir fonctionner sur les versions pr&eacute;c&eacute;dentes).</p>
@@ -15,15 +15,20 @@
 </div>
 <h2>Installation</h2>
 <div>
-    <p>Pour installer cette extension, merci de t&eacute;l&eacute;charger le fichier inspyrehelper-0.10.3.xpi en
+    <p>Pour installer cette extension, merci de t&eacute;l&eacute;charger le fichier inspyrehelper-0.11.0.xpi en
         cliquant sur ce lien :
-        <a href="https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.10.3.xpi">Extension Inspyre Helper</a>
+        <a href="https://github.com/fdeguibert/scriptPriseDeGarde.github.io/raw/main/resources/firefox_extension/web-ext-artifacts/inspyrehelper-0.11.0.xpi">Extension
+            Inspyre Helper</a>
     </p>
-    <p>Il vous suffit ensuite de double-cliquer dessus. Si Firefox est install&eacute;, l&#39;extension sera ajout&eacute;e
-        &agrave; votre navigateur (une fen&ecirc;tre de confirmation devrait appara&icirc;tre).</p>
+    <p>Il vous suffit ensuite de "glisser-d&eacute;poser" le fichier dans une fen&ecirc;tre ouverte de firefox (une fen&ecirc;tre
+        de confirmation devrait appara&icirc;tre).</p>
     <p>Les mises &agrave; jour de l&#39;extension seront automatiques.</p>
     <p>Note importante: l&#39;extension doit &ecirc;tre install&eacute;e sur chaque navigateur Firefox o&ugrave; vous
         souhaitez l&#39;utiliser.</p>
+    <div>
+        <p>Vid&eacute;o de la manip d&#39;installation</p>
+        <img src="assets/install.gif" style="  height: auto;max-width: 100%;border: 8px solid black">
+    </div>
 </div>
 <h2>Fonctionnalit&eacute;s</h2>
 <div>
@@ -101,15 +106,19 @@
     <p>Si cela ne r&eacute;sout pas le soucis et que &ccedil;a emp&egrave;che de remplir la signature de fin de garde, 3
         options:</p>
     <ul>
-        <li>Soit le plus simple&nbsp;: utiliser un autre navigateur (Chrome, Internet Explorer, Edge, etc.) qui n&#39;a pas l&#39;extension install&eacute;e
-            dessus.</li>
+        <li>Soit le plus simple&nbsp;: utiliser un autre navigateur (Chrome, Internet Explorer, Edge, etc.) qui n&#39;a
+            pas l&#39;extension install&eacute;e
+            dessus.
+        </li>
         <li>Soit utiliser un ordinateur du CS qui n&#39;a pas l&#39;extension install&eacute;e, soit la session windows
             de quelqu&#39;un d&#39;autre qui n&#39;a pas install&eacute; l&#39;extension ou bien un t&eacute;l&eacute;phone
             portable.
         </li>
         <li>Soit, plus compliqu&eacute;&nbsp;: d&eacute;sactiver l&#39;extension.</li>
-        <p>Pour d&eacute;sactiver l&#39;extension, il faut se rendre dans le menu des extensions de firefox. Pour cela, cliquez  sur ce lien: <a
-            href="about:addons">Menu des extensions</a> (ce lien peut ne pas marcher selon votre navigateur) <b>ou bien</b>
+        <p>Pour d&eacute;sactiver l&#39;extension, il faut se rendre dans le menu des extensions de firefox. Pour cela,
+            cliquez sur ce lien: <a
+                    href="about:addons">Menu des extensions</a> (ce lien peut ne pas marcher selon votre navigateur) <b>ou
+                bien</b>
             rentrez dans la barre d&#39;adresse `about:addons` et valider:</p>
         <img src="assets/addonsMenu.png" alt="about:addons">
         <p>Puis trouvez l&#39;extension InspireHelper et cliquez sur le bouton de d&eacute;sactivation : </p>
@@ -130,11 +139,13 @@
         </li>
         <li>
             <p>Lorsqu&#39;on lance un calcul de cumul depuis le d&eacute;but de l&#39;ann&eacute;e, il arrive que la
-                Main courante affiche le panneau &quot;Pas d&#39;&eacute;v&egrave;nements pour cette date.&quot; sous la fen&egrave;tre
+                Main courante affiche le panneau &quot;Pas d&#39;&eacute;v&egrave;nements pour cette date.&quot; sous la
+                fen&egrave;tre
                 de signature (et que ce panneau reste, m&ecirc;me en fermant la fen&ecirc;tre de signature).</p>
             <img src="assets/NoEvent.png" alt="pas d evenements">
             <p><b>Explication:</b> l&#39;extension effectue une demande par jour &agrave; retrouver au serveur d&#39;inspyre.
-                En milieu d&#39;ann&eacute;e, &ccedil;a repr&eacute;sente plusieurs centaines de requ&ecirc;tes et le serveur peut alors d&eacute;cider
+                En milieu d&#39;ann&eacute;e, &ccedil;a repr&eacute;sente plusieurs centaines de requ&ecirc;tes et le
+                serveur peut alors d&eacute;cider
                 d&#39;arr&ecirc;ter de mettre &agrave; jour la main courante.<br>
                 A priori, &ccedil;a n&#39;emp&egrave;che pas de valider la signature une fois le calcul du cumul termin&eacute;.
             </p>
