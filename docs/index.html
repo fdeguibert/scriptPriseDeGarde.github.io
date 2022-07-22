@@ -67,28 +67,26 @@
         fait ses recherches, un message invitant &agrave; patienter est affich&eacute;, et le bouton d&#39;envoie de la
         signature est renomm&eacute; en &quot;Message incomplet&quot; et il est rendu inactif) :</p>
     <img src="assets/OngoingSimpleCalculation.png" alt="calcul simple en cours">
-    <p>Une fois le texte g&eacute;n&eacute;r&eacute;, il n&#39;est toujours pas possible de valider la signature, car il
-        faut ajouter les informations sur les lignes vides (Personnels, Moyens, Divers).</p>
-    <img src="assets/invalidText.png" alt="message invalide">
-    <p> Le texte peut &ecirc;tre n&#39;importe quoi, il faut juste qu&#39;il soit pr&eacute;sent. "RAS" par exemple s&#39;il
-        n&#39;y a rien de sp&eacute;cial &agrave; indiquer.</p>
-    <img src="assets/validText.png" alt="texte valide">
-    <p>Quand les 2 lignes vides sont remplies, le bouton de validation est renomm&eacute; en &quot;Envoyer&quot;
-        et il redevient actif afin de valider la signature.</p>
+    <p>Une fois le texte g&eacute;n&eacute;r&eacute;, il peut &ecirc;tre envoy&eacute; imm&eacute;diatement sous condition qu&#39;il contienne au moins les 2 lignes suivantes:</p>
+    <p style="font-family: 'Andale Mono',sans-serif">
+        Cumul interventions : [un nombre]<br>
+        Cumul infos : [un nombre]<br>
+    </p>
+    <p>Les lignes &quot;Personnels, Moyens et Divers&quot; sont normalement &agrave; compl&eacute;ter, mais les laisser vide n&#39;emp&egrave;che pas la validation de la signature</p>
     <p>Note: il est toujours possible de modifier manuellement les chiffres fournis par l'extension avant de
         valider.</p>
 
     <h4>Fonctionnement avanc&eacute;</h4>
     <p>Pour diff&eacute;rentes raisons il peut &ecirc;tre n&eacute;cessaire de recompter les interventions et
         informations depuis le d&eacute;but de l&#39;ann&eacute;e.</p>
-    <p>Par exemple, si c&#39;est la premi&egrave;re fois que l&#39;extension est utilis&eacute;e, elle peut ne pas
+    <p>Par exemple, si c&#39;est la premi&egrave;re fois que l&#39;extension est utilis&eacute;e depuis le d&eacute;but de l&#39;ann&eacute;e, elle peut ne pas
         trouver de signature valide dans l&#39;historique de la main courante (en pratique, le format standard est
         issu de message d&eacute;j&agrave; existant donc m&ecirc;me la premi&egrave;re fois que l&#39;extension est
-        utilis&eacute;e elle devrait fonctionner en mode par d&eacute;faut)</p>
+        utilis&eacute;e elle devrait fonctionner en mode par d&eacute;faut, mais ce probl&egrave;me peut se produire le 1er Janvier)</p>
     <p>Un autre cas plus probable est s&#39;il y a eu des erreurs de comptage pendant l&#39;ann&eacute;e.</p>
     <p>Dans ce cas, il faut utiliser le bouton <img src="assets/reconstruireCumul.png" alt="Reconstruire Cumul"/> qui va
         recompter toutes les interventions et informations depuis le d&eacute;but de l&#39;ann&eacute;e.</p>
-    <p>Cette action est un peu plus longue (quelques minutes).</p>
+    <p>Cette action est un peu plus longue (quelques minutes, surtout en fin d&#39;ann&eacute;e).</p>
     <p>En cliquant sur le bouton, une fen&ecirc;tre de confirmation apparait:</p>
     <img src="assets/confirmationCumul.png" alt="Confirmation cumul"/>
     <p>Vous pouvez soit annuler l&#39;action, soit valider, auquel cas le calcul commence</p>
