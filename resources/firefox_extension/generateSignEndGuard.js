@@ -84,27 +84,24 @@ function loadEndGuardGenerator(csCode) {
 
     //add check text listener
     const textArea = document.querySelector('textarea[name="detail"]');
-    textArea.addEventListener('input', function () {
-        checkContentTextArea(textArea);
-    }, true);
+
     //And initialize text
     textArea.textContent = 'Récupération des données en cours... Veuillez patienter. \n'
     textArea.style.height = '170px';
-    checkContentTextArea(textArea);
-
     defaultGeneration(csCode);
-
 
 }
 
 
 async function defaultGeneration(csCode) {
+    setButtonState(false)
+
     const shiftChangeTime = getTimeChangeShift(csCode);
 
     const currentDate = new Date();
     currentDate.setHours(shiftChangeTime.hourShiftChange, shiftChangeTime.minutesShiftChange)
     const maxRetrievalDate = new Date(currentDate);
-    maxRetrievalDate.setDate(maxRetrievalDate.getDate() - 5); //TODO ME ajouter le "aucune signature valide trouvée dans la dernière semaine, faite un recumul
+    maxRetrievalDate.setDate(maxRetrievalDate.getDate() - 5);
 
     let allDatas = await getEventsFromDateToDateParallelized(maxRetrievalDate, currentDate, 10);
     if (!allDatas) {
@@ -112,10 +109,14 @@ async function defaultGeneration(csCode) {
         allDatas = await getEventsFromDateToDateParallelized(maxRetrievalDate, currentDate, 1);
     }
     getTextArea().textContent = buildNewSignTextFromLatestValidSign(allDatas, csCode)
+    checkContentTextArea(getTextArea())
+    getTextArea().addEventListener('input', function () {
+        checkContentTextArea(getTextArea());
+    }, true);
 }
 
 async function fullRebuildGeneration(csCode) {
-    const textArea = document.querySelector('textarea[name="detail"]');
+    setButtonState(false)
 
     const changeTimeShift = getTimeChangeShift(csCode)
     const startingDate = new Date(new Date().getFullYear(), 0, 1, changeTimeShift.hourShiftChange, changeTimeShift.minutesShiftChange, 0)
@@ -129,7 +130,11 @@ async function fullRebuildGeneration(csCode) {
         allDatas = await getEventsFromDateToDateParallelized(startingDate, endingDate, 2);
     }
     console.log(allDatas)
-    textArea.textContent = buildNewSignTextFullRebuild(allDatas)
+    getTextArea().textContent = buildNewSignTextFullRebuild(allDatas)
+    checkContentTextArea(getTextArea())
+    getTextArea().addEventListener('input', function () {
+        checkContentTextArea(getTextArea());
+    }, true);
 }
 
 function addRebuildCumulButton() {
@@ -157,7 +162,6 @@ function addRebuildCumulButton() {
 
 //Utils
 
-//TODO ME ça va s'arreter a la première signature valide. Si il y en a eu une le matin même ça fout le bronx a priori
 /**
  * retrieve all events from startingDate to endingDate
  * @param startingDate
@@ -237,21 +241,6 @@ function extractEventsCount(events) {
     }, {inters: 0, infos: 0})
 }
 
-/**
- * get events for a specific date and return a parsed object
- * @param date
- * @returns {{
- *             type,
- *             title,
- *             content,
- *             validSignature,
- *             dateTime
- *         }[]}
- */
-function getEventsForDay(date) {
-    const dataForDay = getDataForDay(date);
-    return extractEventsFromHtml(dataForDay)
-}
 
 function extractEventsFromHtml(htmlDoc) {
 
@@ -320,19 +309,26 @@ function addIfNotAlreadyIn(events, newEvents) {
 function checkContentTextArea(textAreaToCheck) {
     const modalFooter = document.querySelector('.modal-footer');
     const sendButton = modalFooter.querySelector('.btn-primary')
-    if (!!textAreaToCheck.value.match("Consignes passées au Chef de Garde montant.\n" +
-        "Interventions : [0-9]+.*\n" +
-        "Infos : [0-9]+.*\n" +
-        "Cumul interventions : [0-9]+.*\n" +
-        "Cumul infos : [0-9]+.*\n" +
-        "Personnels :.*[^ ]+.*\n" +
-        "Moyens :.*[^ ]+.*\n" +
-        "Divers :.*[^ ]+.*")) {
+    if (checkValidSignature(textAreaToCheck.value)) {
         sendButton.disabled = false;
         sendButton.value = 'Envoyer'
     } else {
         sendButton.disabled = true;
-        sendButton.value = 'Message Incomplet'
+        sendButton.value = 'Message Invalide'
+        alert('Le texte doit contenir 2 lignes avec: \n' +
+            'Cumul interventions : [un nombre]\n' +
+            'Cumul infos : [un nombre]')
+    }
+}
+function setButtonState(enabled) {
+    const modalFooter = document.querySelector('.modal-footer');
+    const sendButton = modalFooter.querySelector('.btn-primary')
+    if (enabled) {
+        sendButton.disabled = false;
+        sendButton.value = 'Envoyer'
+    } else {
+        sendButton.disabled = true;
+        sendButton.value = 'Calcul en cours'
     }
 }
 
