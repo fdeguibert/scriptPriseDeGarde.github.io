@@ -1,3 +1,8 @@
+### version 0.14.0
+Certaines infos sont en fait des interventions car le CS s'est engagé dessus.  
+Dans ce cas, il faut reconvertir l'info en intervention dans le comptage.  
+C'est ce qu'apporte cette nouvelle version. Une reconstruction du cumul est nécessaire lors de la première utilisation.
+
 ### version 0.13.0
 La vérification du format du texte était trop stricte et posait plus de problème qu'elle n'aidait.  
 Cette vérification a été réduite à un simple contrôle de la présence de 2 lignes de texte (techniquement nécessaire pour que l'extension fonctionne)  
