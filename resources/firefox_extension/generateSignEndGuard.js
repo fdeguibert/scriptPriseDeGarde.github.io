@@ -1,3 +1,9 @@
+const DEBUG_MODE_ON = false
+if (!DEBUG_MODE_ON) {
+    console = console || {};
+    console.log = function(){};
+}
+
 function getCS() {
     const url = window.location.href;
 
@@ -147,7 +153,7 @@ function addRebuildCumulButton() {
     button.id = 'added-button-by-ext'
     button.style.float = 'left'
     button.onclick = () => {
-        fullRebuild = confirm('Souhaitez vous reconstruire le cumul des interventions depuis le 01 Janvier? \n' +
+        let fullRebuild = confirm('Souhaitez vous reconstruire le cumul des interventions depuis le 01 Janvier? \n' +
             'Cela prendra quelques minutes. \n\n' +
             'En cas de problème lisez la documentation ou contactez François de Guibert \n' +
             'lien de la documentation :\n' +
@@ -244,9 +250,12 @@ function extractEventsCount(events) {
 
 function extractEventsFromHtml(htmlDoc) {
 
+    const currentCS = getCS();
     const eventsDiv = htmlDoc.getElementsByClassName('sdis78box');
     const dataParsed = [];
     for (let i = 0; i < eventsDiv.length; i++) {
+        let deb = false;
+
         const eventDiv = eventsDiv[i].querySelector('div:nth-child(1)')
 
         let type = eventDiv.className.replace('panel ', '');
@@ -255,6 +264,17 @@ function extractEventsFromHtml(htmlDoc) {
             title = eventDiv.querySelector('div:nth-child(1) > div:nth-child(1)> div:nth-child(1) > span:nth-child(2)').textContent
         } else {
             title = eventDiv.querySelector('div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > span:nth-child(1)').textContent
+            //if it's a nonresponse, check if it's not a inter in disguise
+            if (type === 'nonreponse') {
+                const cardEquipage = eventDiv.querySelector('div:nth-child(1) > div:nth-child(2) > div:nth-child(1)').querySelectorAll('.card-equipage');
+                cardEquipage.forEach(card => {
+                    if (card.textContent.includes(currentCS)) {
+                        console.log(`équipage ${currentCS} trouvé sur la nonreponse. requalification de la nonreponse en inter`)
+                        type = 'inter'
+                        deb = true;
+                    }
+                })
+            }
         }
         let content = eventDiv.querySelector('div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > p:nth-child(1)').textContent
         let validSignature = false;
@@ -320,6 +340,7 @@ function checkContentTextArea(textAreaToCheck) {
             'Cumul infos : [un nombre]')
     }
 }
+
 function setButtonState(enabled) {
     const modalFooter = document.querySelector('.modal-footer');
     const sendButton = modalFooter.querySelector('.btn-primary')
@@ -364,17 +385,6 @@ function extractValue(latestSignatureText, regexp) {
     } else {
         return null;
     }
-}
-
-/**
- * count plain days between 2 dates
- * @param date1
- * @param date2
- * @returns {number}
- */
-function daysBetweenDates(date1, date2) {
-    let difference = date1.getTime() - date2.getTime();
-    return Math.ceil(difference / (1000 * 3600 * 24));
 }
 
 /**
@@ -433,25 +443,6 @@ function getHtmlDocumentFrom(url) {
 
     return el;
 }
-
-/**
- * get events as HTML from url with context param to select date
- * @param date - the date for which we want events
- * @returns {HTMLHtmlElement}
- */
-function getDataForDay(date) {
-    const context = getHtmlDocumentFrom(`https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${date.toLocaleDateString('fr').replace('-', '/')}`).getElementsByTagName('body')[0].getAttribute('id');
-
-    const xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", 'https://portail.sdis78.fr/plugins/MainCourantePlugin/jsp/doMciList.jsp', false);
-    xmlHttp.setRequestHeader('X-Jcms-Ajax-Id', context)
-    xmlHttp.send(null);
-    const htmlResult = xmlHttp.responseText;
-    const el = document.createElement('html');
-    el.innerHTML = htmlResult;
-    return el;
-}
-
 
 function buildNewSignTextFullRebuild(events, csCode) {
     let eventsSinceLatestShiftChange = events.slice(events.findIndex(e => e.dateTime <= getEndShiftDateTime(csCode)), events.findIndex(e => e.dateTime < getStartShiftDateTime(csCode)))
