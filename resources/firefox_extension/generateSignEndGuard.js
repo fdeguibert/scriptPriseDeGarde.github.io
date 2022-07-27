@@ -12,6 +12,7 @@ const DEFAULT_SIGNATURE_TEMPLATE = "Consignes passées au Chef de Garde montant.
     "Personnels : \n" +
     "Moyens : \n" +
     "Divers : ";
+
 //add listener to handle saved text
 
 function handleSavedTextChange(savedText) {
@@ -166,11 +167,15 @@ async function defaultGeneration(csCode) {
         alert('une erreur est survenue durant l\'appel au serveur, le calcul va recommencer, plus lentement pour éviter les erreurs de surcharge serveur')
         allDatas = await getEventsFromDateToDateParallelized(maxRetrievalDate, currentDate, 1);
     }
-    getTextArea().textContent = buildNewSignTextFromLatestValidSign(allDatas, csCode)
-    checkContentTextArea(getTextArea())
-    getTextArea().addEventListener('input', function () {
-        checkContentTextArea(getTextArea());
-    }, true);
+    await loadCountsFromFromLatestValidSign(allDatas, csCode)
+    buildText().then((result) => {
+        getTextArea().textContent = result;
+        checkContentTextArea(getTextArea())
+        getTextArea().addEventListener('input', function () {
+            checkContentTextArea(getTextArea());
+        }, true);
+    })
+
 }
 
 async function fullRebuildGeneration(csCode) {
@@ -188,11 +193,15 @@ async function fullRebuildGeneration(csCode) {
         allDatas = await getEventsFromDateToDateParallelized(startingDate, endingDate, 2);
     }
     console.log(allDatas)
-    getTextArea().textContent = buildNewSignTextFullRebuild(allDatas)
-    checkContentTextArea(getTextArea())
-    getTextArea().addEventListener('input', function () {
-        checkContentTextArea(getTextArea());
-    }, true);
+    await loadCountsFromFullRebuild(allDatas)
+    buildText().then((result) => {
+        getTextArea().textContent = result;
+        checkContentTextArea(getTextArea())
+        getTextArea().addEventListener('input', function () {
+            checkContentTextArea(getTextArea());
+        }, true);
+    })
+
 }
 
 function rebuildAction() {
@@ -241,11 +250,11 @@ function clearSavedText() {
 }
 
 function loadSavedText() {
-    browser.storage.sync.get(['savedText', 'aggregatedCount'])
+    browser.storage.sync.get('savedText')
         .then((res) => {
             console.log(res);
-            if (res.savedText && res.aggregatedCount) {
-                getTextArea().textContent = buildText(res.aggregatedCount, res.savedText)
+            if (res.savedText) {
+                buildText(res.savedText).then((res) => getTextArea().textContent = res)
             }
         });
     return false;
@@ -522,17 +531,23 @@ function setButtonState(enabled) {
 
 /**
  * format the signature text
- * @param aggregatedCount {{currentInters, currentInfos, totalInters, totalInfos}}
  * @param template
  * @returns {string}
  */
-function buildText(aggregatedCount, template = DEFAULT_SIGNATURE_TEMPLATE) {
-    let text = template;
-    text = text.replace('[X-inters-X]', aggregatedCount.currentInters);
-    text = text.replace('[X-infos-X]', aggregatedCount.currentInfos);
-    text = text.replace('[X-cumul-inters-X]', aggregatedCount.totalInters);
-    text = text.replace('[X-cumul-infos-X]', aggregatedCount.totalInfos);
-    return text;
+function buildText(template = DEFAULT_SIGNATURE_TEMPLATE) {
+    return browser.storage.sync.get('aggregatedCount').then((res) => {
+        if (res.aggregatedCount) {
+            let text = template;
+            text = text.replace('[X-inters-X]', res.aggregatedCount.currentInters);
+            text = text.replace('[X-infos-X]', res.aggregatedCount.currentInfos);
+            text = text.replace('[X-cumul-inters-X]', res.aggregatedCount.totalInters);
+            text = text.replace('[X-cumul-infos-X]', res.aggregatedCount.totalInfos);
+            return text;
+        }else{
+            alert('le calcul n\'était pas terminé');
+        }
+    });
+
 }
 
 /**
@@ -591,7 +606,7 @@ function getStartShiftDateTime(csCode) {
 }
 
 //HTML Utils
-function buildNewSignTextFullRebuild(events, csCode) {
+async function loadCountsFromFullRebuild(events, csCode) {
     let eventsSinceLatestShiftChange = events.slice(events.findIndex(e => e.dateTime <= getEndShiftDateTime(csCode)), events.findIndex(e => e.dateTime < getStartShiftDateTime(csCode)))
     const latestShiftEvents = extractEventsCount(eventsSinceLatestShiftChange);
     const shiftChangeTime = getTimeChangeShift(csCode)
@@ -605,11 +620,10 @@ function buildNewSignTextFullRebuild(events, csCode) {
         totalInters: totalCumul.inters,
         totalInfos: totalCumul.infos
     };
-    browser.storage.sync.set({aggregatedCount})
-    return buildText(aggregatedCount);
+    await browser.storage.sync.set({aggregatedCount})
 }
 
-function buildNewSignTextFromLatestValidSign(events, csCode) {
+async function loadCountsFromFromLatestValidSign(events, csCode) {
     let eventLatestValidSign = events.findIndex((e) => e.validSignature === true);
     if (eventLatestValidSign === -1) {
         return 'Aucune signature valide trouvée récemment, relancez un calcul complet';
@@ -628,8 +642,7 @@ function buildNewSignTextFromLatestValidSign(events, csCode) {
         totalInters: cumulSinceLatestValidSign.inters + latestCountInters,
         totalInfos: cumulSinceLatestValidSign.infos + latestCountInfos
     };
-    browser.storage.sync.set({aggregatedCount})
-    return buildText(aggregatedCount)
+    await browser.storage.sync.set({aggregatedCount})
 }
 
 
