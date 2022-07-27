@@ -4,10 +4,54 @@ if (!DEBUG_MODE_ON) {
     console.log = function () {
     };
 }
+const DEFAULT_SIGNATURE_TEMPLATE = "Consignes passées au Chef de Garde montant.\n" +
+    "Interventions : [X-inters-X]\n" +
+    "Infos : [X-infos-X]\n" +
+    "Cumul interventions : [X-cumul-inters-X]\n" +
+    "Cumul infos : [X-cumul-infos-X]\n" +
+    "Personnels : \n" +
+    "Moyens : \n" +
+    "Divers : ";
+//add listener to handle saved text
+
+function handleSavedTextChange(savedText) {
+    let buttonWithTooltip = document.getElementById('button-load-text-with-tooltip');
+    let buttonClearText = document.getElementById('button-clear-text');
+    if (buttonWithTooltip) {
+        buttonWithTooltip.title = savedText || 'vide';
+        buttonWithTooltip.disabled = !savedText;
+    }
+    if (buttonClearText) {
+        buttonClearText.disabled = !savedText;
+    }
+}
+
+function manageSavedText() {
+    //initial get of saved text
+    browser.storage.sync.get('savedText')
+        .then((res) => {
+            handleSavedTextChange(res.savedText)
+            //TODO Ajouter un indicateur avec le texte sauvegardé
+        });
+    //listen to changes
+    browser.storage.onChanged.addListener(changeData => {
+        handleSavedTextChange(changeData.savedText.newValue);
+    });
+}
 
 //Load missing bootstrap css
 const styleBootstrap = document.createElement('style');
-styleBootstrap.innerHTML = ".dropdown-item{display:block;width:100%;padding:.25rem 1.5rem;clear:both;font-weight:400;color:#212529;text-align:inherit;white-space:nowrap;background-color:transparent;border:0}.dropdown-item:focus,.dropdown-item:hover{color:#16181b;text-decoration:none;background-color:#f8f9fa}.dropdown-item.active,.dropdown-item:active{color:#fff;text-decoration:none;background-color:#007bff}.dropdown-item.disabled,.dropdown-item:disabled{color:#6c757d;pointer-events:none;background-color:transparent}.dropdown-menu.show{display:block}.dropdown-divider{height:0;margin:.5rem 0;overflow:hidden;border-top:1px solid #e9ecef}"
+styleBootstrap.innerHTML = ".dropdown-toggle::after{display:inline-block;margin-left:.255em;vertical-align:.255em;content:\"\";border-top:.3em solid;border-right:.3em solid transparent;border-bottom:0;border-left:.3em solid transparent}" +
+    ".dropdown-toggle:empty::after{margin-left:0}" +
+    ".btn-secondary.dropdown-toggle{color:#fff;background-color:#545b62;border-color:#4e555b}" +
+    ".btn-secondary:not(:disabled):not(.disabled).active:focus,.btn-secondary:not(:disabled):not(.disabled):active:focus,.show>.btn-secondary.dropdown-toggle:focus{box-shadow:0 0 0 .2rem rgba(130,138,145,.5)}" +
+    ".btn-success{color:#fff;background-color:#28a745;border-color:#28a745}" +
+    ".dropdown-item{display:block;width:100%;padding:.25rem 1.5rem;clear:both;font-weight:400;color:#212529;text-align:inherit;white-space:nowrap;background-color:transparent;border:0}" +
+    ".dropdown-item:focus,.dropdown-item:hover{color:#16181b;text-decoration:none;background-color:#f8f9fa}" +
+    ".dropdown-item.active,.dropdown-item:active{color:#fff;text-decoration:none;background-color:#007bff}" +
+    ".dropdown-item.disabled,.dropdown-item:disabled{color:#6c757d;pointer-events:none;background-color:transparent}" +
+    ".dropdown-menu.show{display:block}" +
+    ".dropdown-divider{height:0;margin:.5rem 0;overflow:hidden;border-top:1px solid #e9ecef}"
 
 document.getElementsByTagName('head')[0].appendChild(styleBootstrap);
 
@@ -58,7 +102,6 @@ endGuardModalLink.onclick = () => {
 function fetchDatasForDate(date) {
     const contextUrl = `https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${date.toLocaleDateString('fr').replace('-', '/')}`
     const htmlForContext = fetch(contextUrl);
-    // console.log(date + ' is fetching')
     return htmlForContext.then(function (response) {
         // The API call was successful!
         return response.text();
@@ -91,10 +134,13 @@ function fetchDatasForDate(date) {
     });
 }
 
+
 function loadEndGuardGenerator(csCode) {
 
     //add a dropdown button
     addDropDownButton();
+    manageSavedText();
+
     //add check text listener
     const textArea = document.querySelector('textarea[name="detail"]');
 
@@ -164,20 +210,42 @@ function rebuildAction() {
 function saveText() {
     browser.storage.sync.get('savedText')
         .then((res) => {
-            if (res.savedText) {
-                let conf = confirm('un texte est déjà sauvegardé: \n\n' + res.savedText + '\n\n'
-                    + 'Souhaitez vous l\'écraser?');
-                if (conf) {
-                    browser.storage.sync.set({
-                        savedText: getTextArea().value
-                    });
-                }
-            } else {
-                const text = getTextArea().textContent;
+            if (!res.savedText || confirm('un texte est déjà sauvegardé: \n\n' + res.savedText + '\n\n'
+                + 'Souhaitez vous l\'écraser?')) {
+                let textToSave = getTextArea().value;
+                textToSave = textToSave.replace(/Interventions : ([0-9]+)/i, 'Interventions : [X-inters-X]');
+                textToSave = textToSave.replace(/Infos : ([0-9]+)/i, 'Infos : [X-infos-X]');
+                textToSave = textToSave.replace(/Cumul.*interventions : ([0-9]+)/i, 'Cumul interventions : [X-cumul-inters-X]');
+                textToSave = textToSave.replace(/Cumul.*infos.*: ([0-9]+)/i, 'Cumul infos : [X-cumul-infos-X]');
                 browser.storage.sync.set({
-                    savedText: text
+                    savedText: textToSave
                 });
-                //TODO Ajouter un indicateur avec le texte sauvegardé
+            }
+        });
+    return false;
+}
+
+function clearSavedText() {
+    browser.storage.sync.get('savedText')
+        .then((res) => {
+            if (res.savedText) {
+                // document.getElementById('tooltip-text-saved').title = res.savedText;
+                let conf = confirm('Supprimer le texte sauvegardé: \n\n' + res.savedText + '\n\n'
+                    + 'Êtes vous sûr?');
+                if (conf) {
+                    browser.storage.sync.remove('savedText');
+                }
+            }
+        });
+    return false;
+}
+
+function loadSavedText() {
+    browser.storage.sync.get(['savedText', 'aggregatedCount'])
+        .then((res) => {
+            console.log(res);
+            if (res.savedText && res.aggregatedCount) {
+                getTextArea().textContent = buildText(res.aggregatedCount, res.savedText)
             }
         });
     return false;
@@ -206,16 +274,36 @@ function addDropDownButton() {
         return saveText();
     }
     dropdownDiv.appendChild(buttonSaveText);
+
+
+    const buttonLoadText = document.createElement("button");
+    buttonLoadText.id = 'button-load-text-with-tooltip';
+    buttonLoadText.className = "dropdown-item";
+
+    buttonLoadText.setAttribute("data-toggle", "tooltip");
+    buttonLoadText.setAttribute("data-html", "true");
+    buttonLoadText.setAttribute("data-delay", "0");
+    buttonLoadText.type = "button";
+    buttonLoadText.textContent = "Charger le texte sauvegardé";
+
+    buttonLoadText.onclick = () => {
+        return loadSavedText();
+    }
+
+    dropdownDiv.appendChild(buttonLoadText);
+
     const buttonClearText = document.createElement("button");
+    buttonClearText.id = 'button-clear-text'
     buttonClearText.className = "dropdown-item";
     buttonClearText.type = "button";
     buttonClearText.textContent = "Supprimer le texte sauvegardé";
+
+    buttonClearText.onclick = () => {
+        return clearSavedText();
+    }
     dropdownDiv.appendChild(buttonClearText);
-    const buttonLoadText = document.createElement("button");
-    buttonLoadText.className = "dropdown-item";
-    buttonLoadText.type = "button";
-    buttonLoadText.textContent = "Charger le texte sauvegardé";
-    dropdownDiv.appendChild(buttonLoadText);
+
+
     const separatorDiv = document.createElement('div');
     separatorDiv.className = "dropdown-divider";
     dropdownDiv.appendChild(separatorDiv);
@@ -238,6 +326,7 @@ function addDropDownButton() {
 
 
     modalFooter.insertBefore(divWrapper, modalFooter.firstChild)
+
 }
 
 //Utils
@@ -380,7 +469,10 @@ function extractEventsFromHtml(htmlDoc) {
  * @returns {boolean}
  */
 function checkValidSignature(textToCheck) {
-    return !!(textToCheck.match('.*Cumul.*interventions.*: ([0-9]+).*') && textToCheck.match('.*Cumul.*infos.*: ([0-9]+).*'));
+    return !!(textToCheck.match('.*Interventions.*: ([0-9]+).*')
+        && textToCheck.match('.*Infos.*: ([0-9]+).*')
+        && textToCheck.match('.*Cumul.*interventions.*: ([0-9]+).*')
+        && textToCheck.match('.*Cumul.*infos.*: ([0-9]+).*'));
 }
 
 /**
@@ -404,12 +496,13 @@ function checkContentTextArea(textAreaToCheck) {
     const modalFooter = document.querySelector('.modal-footer');
     const sendButton = modalFooter.querySelector('.btn-primary')
     if (checkValidSignature(textAreaToCheck.value)) {
-        sendButton.disabled = false;
-        sendButton.value = 'Envoyer'
+        setButtonState(true);
     } else {
         sendButton.disabled = true;
         sendButton.value = 'Message Invalide'
-        alert('Le texte doit contenir 2 lignes avec: \n' +
+        alert('Le texte doit contenir les 4 lignes suivantes: \n\n' +
+            'Interventions : [un nombre]\n' +
+            'Infos : [un nombre]\n' +
             'Cumul interventions : [un nombre]\n' +
             'Cumul infos : [un nombre]')
     }
@@ -418,32 +511,28 @@ function checkContentTextArea(textAreaToCheck) {
 function setButtonState(enabled) {
     const modalFooter = document.querySelector('.modal-footer');
     const sendButton = modalFooter.querySelector('.btn-primary')
-    if (enabled) {
-        sendButton.disabled = false;
-        sendButton.value = 'Envoyer'
-    } else {
-        sendButton.disabled = true;
-        sendButton.value = 'Calcul en cours'
+    const dropDownButton = document.getElementById('dropdownMenuButton');
+    sendButton.disabled = !enabled;
+    sendButton.value = enabled ? 'Envoyer' : 'Calcul en cours';
+    if (dropDownButton) {
+        dropDownButton.disabled = !enabled;
     }
+
 }
 
 /**
  * format the signature text
- * @param currentInters
- * @param currentInfos
- * @param totalInters
- * @param totalInfos
+ * @param aggregatedCount {{currentInters, currentInfos, totalInters, totalInfos}}
+ * @param template
  * @returns {string}
  */
-function buildText(currentInters, currentInfos, totalInters, totalInfos) {
-    return "Consignes passées au Chef de Garde montant.\n" +
-        "Interventions : " + currentInters + "\n" +
-        "Infos : " + currentInfos + "\n" +
-        "Cumul interventions : " + totalInters + "\n" +
-        "Cumul infos : " + totalInfos + "\n" +
-        "Personnels : \n" +
-        "Moyens : \n" +
-        "Divers : ";
+function buildText(aggregatedCount, template = DEFAULT_SIGNATURE_TEMPLATE) {
+    let text = template;
+    text = text.replace('[X-inters-X]', aggregatedCount.currentInters);
+    text = text.replace('[X-infos-X]', aggregatedCount.currentInfos);
+    text = text.replace('[X-cumul-inters-X]', aggregatedCount.totalInters);
+    text = text.replace('[X-cumul-infos-X]', aggregatedCount.totalInfos);
+    return text;
 }
 
 /**
@@ -502,22 +591,6 @@ function getStartShiftDateTime(csCode) {
 }
 
 //HTML Utils
-/**
- * get HTML from url
- * @param url
- * @returns {HTMLHtmlElement}
- */
-function getHtmlDocumentFrom(url) {
-    const xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", url, false);
-    xmlHttp.send(null);
-    const htmlResult = xmlHttp.responseText;
-    const el = document.createElement('html');
-    el.innerHTML = htmlResult;
-
-    return el;
-}
-
 function buildNewSignTextFullRebuild(events, csCode) {
     let eventsSinceLatestShiftChange = events.slice(events.findIndex(e => e.dateTime <= getEndShiftDateTime(csCode)), events.findIndex(e => e.dateTime < getStartShiftDateTime(csCode)))
     const latestShiftEvents = extractEventsCount(eventsSinceLatestShiftChange);
@@ -525,7 +598,15 @@ function buildNewSignTextFullRebuild(events, csCode) {
     const endingDate = new Date()
     endingDate.setHours(shiftChangeTime.hourShiftChange, shiftChangeTime.minutesShiftChange)
     const totalCumul = extractEventsCount(events.slice(events.findIndex(e => e.dateTime < endingDate), events.findIndex(e => e.dateTime < new Date(new Date().getFullYear(), 0, 1, shiftChangeTime.hourShiftChange, shiftChangeTime.minutesShiftChange, 0))));
-    return buildText(latestShiftEvents.inters, latestShiftEvents.infos, totalCumul.inters, totalCumul.infos);
+
+    const aggregatedCount = {
+        currentInters: latestShiftEvents.inters,
+        currentInfos: latestShiftEvents.infos,
+        totalInters: totalCumul.inters,
+        totalInfos: totalCumul.infos
+    };
+    browser.storage.sync.set({aggregatedCount})
+    return buildText(aggregatedCount);
 }
 
 function buildNewSignTextFromLatestValidSign(events, csCode) {
@@ -541,7 +622,14 @@ function buildNewSignTextFromLatestValidSign(events, csCode) {
     let eventsSinceLatestShiftChange = events.slice(events.findIndex(e => e.dateTime <= getEndShiftDateTime(csCode)), events.findIndex(e => e.dateTime < getStartShiftDateTime(csCode)))
     const latestShiftEvents = extractEventsCount(eventsSinceLatestShiftChange);
 
-    return buildText(latestShiftEvents.inters, latestShiftEvents.infos, cumulSinceLatestValidSign.inters + latestCountInters, cumulSinceLatestValidSign.infos + latestCountInfos)
+    const aggregatedCount = {
+        currentInters: latestShiftEvents.inters,
+        currentInfos: latestShiftEvents.infos,
+        totalInters: cumulSinceLatestValidSign.inters + latestCountInters,
+        totalInfos: cumulSinceLatestValidSign.infos + latestCountInfos
+    };
+    browser.storage.sync.set({aggregatedCount})
+    return buildText(aggregatedCount)
 }
 
 
