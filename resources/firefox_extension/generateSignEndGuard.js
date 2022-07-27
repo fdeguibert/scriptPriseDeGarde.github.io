@@ -1,8 +1,16 @@
-const DEBUG_MODE_ON = false
+const DEBUG_MODE_ON = true
 if (!DEBUG_MODE_ON) {
     console = console || {};
-    console.log = function(){};
+    console.log = function () {
+    };
 }
+
+//Load missing bootstrap css
+const styleBootstrap = document.createElement('style');
+styleBootstrap.innerHTML = ".dropdown-item{display:block;width:100%;padding:.25rem 1.5rem;clear:both;font-weight:400;color:#212529;text-align:inherit;white-space:nowrap;background-color:transparent;border:0}.dropdown-item:focus,.dropdown-item:hover{color:#16181b;text-decoration:none;background-color:#f8f9fa}.dropdown-item.active,.dropdown-item:active{color:#fff;text-decoration:none;background-color:#007bff}.dropdown-item.disabled,.dropdown-item:disabled{color:#6c757d;pointer-events:none;background-color:transparent}.dropdown-menu.show{display:block}.dropdown-divider{height:0;margin:.5rem 0;overflow:hidden;border-top:1px solid #e9ecef}"
+
+document.getElementsByTagName('head')[0].appendChild(styleBootstrap);
+
 
 function getCS() {
     const url = window.location.href;
@@ -85,9 +93,8 @@ function fetchDatasForDate(date) {
 
 function loadEndGuardGenerator(csCode) {
 
-    //add a full rebuild button
-    addRebuildCumulButton();
-
+    //add a dropdown button
+    addDropDownButton();
     //add check text listener
     const textArea = document.querySelector('textarea[name="detail"]');
 
@@ -97,7 +104,6 @@ function loadEndGuardGenerator(csCode) {
     defaultGeneration(csCode);
 
 }
-
 
 async function defaultGeneration(csCode) {
     setButtonState(false)
@@ -143,27 +149,95 @@ async function fullRebuildGeneration(csCode) {
     }, true);
 }
 
-function addRebuildCumulButton() {
+function rebuildAction() {
+    let fullRebuild = confirm('Souhaitez vous reconstruire le cumul des interventions depuis le 01 Janvier? \n' +
+        'Cela prendra quelques minutes. \n\n' +
+        'En cas de problème lisez la documentation ou contactez François de Guibert \n' +
+        'lien de la documentation :\n' +
+        'https://fdeguibert.github.io/scriptPriseDeGarde.github.io/');
+    if (fullRebuild) {
+        fullRebuildGeneration('CHE');
+    }
+    return false;
+}
+
+function saveText() {
+    browser.storage.sync.get('savedText')
+        .then((res) => {
+            if (res.savedText) {
+                let conf = confirm('un texte est déjà sauvegardé: \n\n' + res.savedText + '\n\n'
+                    + 'Souhaitez vous l\'écraser?');
+                if (conf) {
+                    browser.storage.sync.set({
+                        savedText: getTextArea().value
+                    });
+                }
+            } else {
+                const text = getTextArea().textContent;
+                browser.storage.sync.set({
+                    savedText: text
+                });
+                //TODO Ajouter un indicateur avec le texte sauvegardé
+            }
+        });
+    return false;
+}
+
+function addDropDownButton() {
+    const buttonOptions = document.createElement('button');
+    buttonOptions.className = "btn btn-secondary dropdown-toggle";
+    buttonOptions.type = "button";
+    buttonOptions.id = "dropdownMenuButton";
+    buttonOptions.setAttribute('data-toggle', "dropdown");
+    buttonOptions.setAttribute('aria-hasPopup', "true");
+    buttonOptions.setAttribute('aria-expanded', "false");
+    buttonOptions.textContent = "Options";
+    buttonOptions.style.float = 'left'
+
+    const dropdownDiv = document.createElement('div');
+    dropdownDiv.className = "dropdown-menu";
+    dropdownDiv.setAttribute("aria-labelledby", "dropdownMenuButton");
+
+    const buttonSaveText = document.createElement("button");
+    buttonSaveText.className = "dropdown-item";
+    buttonSaveText.type = "button";
+    buttonSaveText.textContent = "Sauvegarder le texte";
+    buttonSaveText.onclick = () => {
+        return saveText();
+    }
+    dropdownDiv.appendChild(buttonSaveText);
+    const buttonClearText = document.createElement("button");
+    buttonClearText.className = "dropdown-item";
+    buttonClearText.type = "button";
+    buttonClearText.textContent = "Supprimer le texte sauvegardé";
+    dropdownDiv.appendChild(buttonClearText);
+    const buttonLoadText = document.createElement("button");
+    buttonLoadText.className = "dropdown-item";
+    buttonLoadText.type = "button";
+    buttonLoadText.textContent = "Charger le texte sauvegardé";
+    dropdownDiv.appendChild(buttonLoadText);
+    const separatorDiv = document.createElement('div');
+    separatorDiv.className = "dropdown-divider";
+    dropdownDiv.appendChild(separatorDiv);
+    const buttonRebuildCumul = document.createElement("button");
+    buttonRebuildCumul.className = "dropdown-item";
+    buttonRebuildCumul.type = "button";
+    buttonRebuildCumul.textContent = "Reconstruire le cumul";
+    buttonRebuildCumul.onclick = () => {
+        return rebuildAction()
+    }
+    dropdownDiv.appendChild(buttonRebuildCumul);
+
     const modalFooter = document.querySelector('.modal-footer');
 
-    //add full rebuild button
-    const button = document.createElement("button");
-    button.textContent = "Reconstruire le cumul";
-    button.className = 'btn btn-danger'
-    button.id = 'added-button-by-ext'
-    button.style.float = 'left'
-    button.onclick = () => {
-        let fullRebuild = confirm('Souhaitez vous reconstruire le cumul des interventions depuis le 01 Janvier? \n' +
-            'Cela prendra quelques minutes. \n\n' +
-            'En cas de problème lisez la documentation ou contactez François de Guibert \n' +
-            'lien de la documentation :\n' +
-            'https://fdeguibert.github.io/scriptPriseDeGarde.github.io/');
-        if (fullRebuild) {
-            fullRebuildGeneration('CHE');
-        }
-        return false;
-    }
-    modalFooter.insertBefore(button, modalFooter.firstChild);
+    const divWrapper = document.createElement("div");
+    divWrapper.className = "dropdown";
+    divWrapper.style.float = 'left'
+    divWrapper.appendChild(buttonOptions);
+    divWrapper.appendChild(dropdownDiv);
+
+
+    modalFooter.insertBefore(divWrapper, modalFooter.firstChild)
 }
 
 //Utils
