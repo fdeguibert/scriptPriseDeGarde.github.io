@@ -252,9 +252,11 @@ function clearSavedText() {
 function loadSavedText() {
     browser.storage.sync.get('savedText')
         .then((res) => {
-            console.log(res);
             if (res.savedText) {
-                buildText(res.savedText).then((res) => getTextArea().textContent = res)
+                buildText(res.savedText).then((res) => {
+                    getTextArea().value = res;
+                    getTextArea().textContent = res;
+                })
             }
         });
     return false;
