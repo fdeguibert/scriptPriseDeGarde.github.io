@@ -167,6 +167,8 @@ async function defaultGeneration(csCode) {
         alert('une erreur est survenue durant l\'appel au serveur, le calcul va recommencer, plus lentement pour éviter les erreurs de surcharge serveur')
         allDatas = await getEventsFromDateToDateParallelized(maxRetrievalDate, currentDate, 1);
     }
+    console.log(allDatas)
+    
     await loadCountsFromFromLatestValidSign(allDatas, csCode)
     buildText().then((result) => {
         getTextArea().textContent = result;
