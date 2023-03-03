@@ -28,9 +28,10 @@ VehicleChiefButton.onclick = () => {
 
             divTitle.innerHTML = "Saisie d'une Signature Garde Remise"
             intituleArea.value = 'Signature Garde Remise'
-            textArea.textContent = "Vérifications effectuées: XXXXXX\n" +
-                "A faire: XXXXX\n" +
-                "Bref contenu à définir."
+            textArea.textContent = "Consignes Garde Remise descendant : \n" +
+                "Véhicules : \n" +
+                "Matériel : \n" +
+                "Observations : "
 
         } else {
             setTimeout(loader, 15);
