@@ -1,3 +1,9 @@
+### version O.16.0
+ajout du bouton saisie de signature de garde remise
+
+### version 0.15.0
+évolutions techniques
+
 ### version 0.14.0
 Certaines infos sont en fait des interventions car le CS s'est engagé dessus.  
 Dans ce cas, il faut reconvertir l'info en intervention dans le comptage.  
