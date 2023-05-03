@@ -1,3 +1,6 @@
+### version 0.17.0
+résolution d'un bug sur le mois de Mai
+
 ### version 0.16.0
 ajout du bouton saisie de signature de garde remise
 
