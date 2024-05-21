@@ -1,3 +1,6 @@
+### version 0.18.0
+résolution du bug comptant la reconstitution POJ comme une "info"
+
 ### version 0.17.0
 résolution d'un bug sur le mois de Mai
 

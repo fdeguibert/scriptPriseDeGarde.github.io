@@ -101,6 +101,7 @@ endGuardModalLink.onclick = () => {
 }
 
 function fetchDatasForDate(date) {
+    console.log("fetching for", date);
     const contextUrl = `https://portail.sdis78.fr/jcms/p_1295618/cs-chevreuse?portlet=p_1336294&dateMci=${date.toLocaleDateString('fr').replace('-', '/')}`
     const htmlForContext = fetch(contextUrl);
     return htmlForContext.then(function (response) {
@@ -168,7 +169,7 @@ async function defaultGeneration(csCode) {
         allDatas = await getEventsFromDateToDateParallelized(maxRetrievalDate, currentDate, 1);
     }
     console.log(allDatas)
-    
+
     await loadCountsFromFromLatestValidSign(allDatas, csCode)
     buildText().then((result) => {
         getTextArea().textContent = result;
@@ -430,8 +431,6 @@ function extractEventsFromHtml(htmlDoc) {
     const eventsDiv = htmlDoc.getElementsByClassName('sdis78box');
     const dataParsed = [];
     for (let i = 0; i < eventsDiv.length; i++) {
-        let deb = false;
-
         const eventDiv = eventsDiv[i].querySelector('div:nth-child(1)')
 
         let type = eventDiv.className.replace('panel ', '');
@@ -442,14 +441,18 @@ function extractEventsFromHtml(htmlDoc) {
             title = eventDiv.querySelector('div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > span:nth-child(1)').textContent
             //if it's a nonresponse, check if it's not a inter in disguise
             if (type === 'nonreponse') {
-                const cardEquipage = eventDiv.querySelector('div:nth-child(1) > div:nth-child(2) > div:nth-child(1)').querySelectorAll('.card-equipage');
-                cardEquipage.forEach(card => {
-                    if (card.textContent.includes(currentCS)) {
-                        console.log(`équipage ${currentCS} trouvé sur la nonreponse. requalification de la nonreponse en inter`)
-                        type = 'inter'
-                        deb = true;
-                    }
-                })
+                //a non response can also be a simple poj reconstitution
+                if (title.includes("RECONSTITUTION POJ")) {
+                    type = 'reconstitution poj'
+                } else {
+                    const cardEquipage = eventDiv.querySelector('div:nth-child(1) > div:nth-child(2) > div:nth-child(1)').querySelectorAll('.card-equipage');
+                    cardEquipage.forEach(card => {
+                        if (card.textContent.includes(currentCS)) {
+                            console.log(`équipage ${currentCS} trouvé sur la nonreponse. requalification de la nonreponse en inter`)
+                            type = 'inter'
+                        }
+                    })
+                }
             }
         }
         let content = eventDiv.querySelector('div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > p:nth-child(1)').textContent
@@ -547,7 +550,7 @@ function buildText(template = DEFAULT_SIGNATURE_TEMPLATE) {
             text = text.replace('[X-cumul-inters-X]', res.aggregatedCount.totalInters);
             text = text.replace('[X-cumul-infos-X]', res.aggregatedCount.totalInfos);
             return text;
-        }else{
+        } else {
             alert('le calcul n\'était pas terminé');
         }
     });
